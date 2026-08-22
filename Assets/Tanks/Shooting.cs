@@ -1,25 +1,29 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Photon.Pun;
 
 public class TankShooter : MonoBehaviour
 {
-    [SerializeField] private InputActionReference fireAction; // Button
+    [SerializeField] private InputActionReference fireAction;
+    [SerializeField] private GameObject bullet;
 
-    private void OnEnable()
+    private PhotonView myView;
+
+    private void Awake()
     {
-        fireAction.action.Enable();
+        myView = GetComponent<PhotonView>();
     }
-
-    private void OnDisable()
+    public void OnAttack()
     {
-        fireAction.action.Disable();
-    }
+        if (!myView.IsMine) return;
 
-    private void Update()
-    {
-        if (fireAction.action.WasPressedThisFrame())
+        var bull = PhotonNetwork.Instantiate(bullet.name, transform.position, Quaternion.identity);
+        var bulScript = bull.GetComponent<BulletScript>();
+        if (bulScript != null)
         {
-            Debug.Log("Disparo!");
+            bulScript.SetMove(transform.forward.normalized);
+            bulScript.SetOwner(gameObject);
         }
+        bull.SetActive(true);
     }
 }

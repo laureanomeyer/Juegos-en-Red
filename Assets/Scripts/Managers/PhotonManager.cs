@@ -36,7 +36,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         string roomName = PhotonNetwork.CurrentRoom.Name;
         int playerCount = PhotonNetwork.CurrentRoom.PlayerCount;
 
-        Debug.Log("Taichu joined the playlist");
+        Debug.Log("Taichu joined the lobby");
 
         OnRoom?.Invoke();
     }
