@@ -26,15 +26,19 @@ public class TankHp : MonoBehaviourPun, IPunObservable
         }
     }
 
-    public void TakeDamage(float damage)
-    {
-        hp -= damage;
-        Debug.Log("Hp take damage: " + hp);
-    }
-
     public void Die()
     {
         Debug.Log("Taichu flopeo");
         PhotonNetwork.Destroy(gameObject);
+    }
+
+    [PunRPC]
+    public void TakeDamage(float damage)
+    {
+        hp -= damage;
+        if (hp <= 0)
+        {
+            Die();
+        }
     }
 }
