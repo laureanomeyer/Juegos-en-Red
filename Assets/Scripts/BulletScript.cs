@@ -41,7 +41,7 @@ public class BulletScript : MonoBehaviour
         if (other.CompareTag("Player") && other != owner)
         {
             //other.GetComponent<TankHp>().TakeDamage(20);
-            other.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 20);
+            other.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 20f);
             PhotonNetwork.Destroy(gameObject);
         }
     }
