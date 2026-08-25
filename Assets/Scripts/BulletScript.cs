@@ -42,7 +42,7 @@ public class BulletScript : MonoBehaviour
         {
             //other.GetComponent<TankHp>().TakeDamage(20);
             other.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 20f);
-            PhotonNetwork.Destroy(gameObject);
+            Destroy(gameObject);
         }
     }
 

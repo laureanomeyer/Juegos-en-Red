@@ -29,7 +29,7 @@ public class TankHp : MonoBehaviourPun, IPunObservable
     public void Die()
     {
         Debug.Log("Taichu flopeo");
-        PhotonNetwork.Destroy(gameObject);
+        Destroy(gameObject);
     }
 
     [PunRPC]
