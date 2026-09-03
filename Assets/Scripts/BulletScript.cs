@@ -38,7 +38,7 @@ public class BulletScript : MonoBehaviour
         if (!myView.IsMine) return;
 
         Debug.Log("Trigger");
-        if (other.CompareTag("Player") && other != owner)
+        if (other.CompareTag("Player") && other.gameObject != owner)
         {
             //other.GetComponent<TankHp>().TakeDamage(20);
             other.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.All, 20f);

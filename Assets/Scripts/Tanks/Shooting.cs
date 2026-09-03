@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Photon.Pun;
 
-public class TankShooter : MonoBehaviour
+public class Shooting : MonoBehaviour
 {
     [SerializeField] private InputActionReference fireAction;
     [SerializeField] private GameObject bullet;

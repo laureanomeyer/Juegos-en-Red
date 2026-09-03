@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject player;
+    [SerializeField] private GameObject playerPrefab;
 
     private void Awake()
     {
@@ -12,6 +12,6 @@ public class PlayerSpawner : MonoBehaviour
 
     private void SpawnPlayer()
     {
-        PhotonNetwork.Instantiate(player.name, new Vector3 (player.transform.position.x + Random.Range(0, 18), player.transform.position.y, player.transform.position.z), player.transform.rotation);
+        PhotonNetwork.Instantiate(playerPrefab.name, new Vector3 (playerPrefab.transform.position.x + Random.Range(0, 18), playerPrefab.transform.position.y, playerPrefab.transform.position.z), playerPrefab.transform.rotation);
     }
 }
