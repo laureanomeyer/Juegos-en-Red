@@ -81,6 +81,6 @@ public class PlayerMovement : MonoBehaviour
         isKnockedDown = true;
         knockdownTimer = knockdownDuration;
         rb.linearVelocity = Vector3.zero;
-        rb.AddForce(direction * force, ForceMode.VelocityChange);
+        rb.AddForce(direction * force, ForceMode.Impulse);
     }
 }

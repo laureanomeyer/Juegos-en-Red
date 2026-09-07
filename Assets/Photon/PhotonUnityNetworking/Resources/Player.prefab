@@ -203,8 +203,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
   pushRange: 1.5
-  pushRadius: 0.6
-  pushForce: 8
+  pushRadius: 40
+  pushForce: 500
   pushCooldown: 1
   grabRange: 2
   grabRadius: 0.8

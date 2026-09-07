@@ -38,11 +38,13 @@ public class PlayerCombat : MonoBehaviourPun
         if (Mouse.current.leftButton.wasPressedThisFrame && pushCooldownTimer <= 0)
         {
             TryPush();
+            Debug.Log("pushe");
         }
 
         if (Mouse.current.rightButton.wasPressedThisFrame && grabCooldownTimer <= 0)
         {
             TryStartGrab();
+            Debug.Log("agarre");
         }
 
         else if (Mouse.current.rightButton.wasReleasedThisFrame && isGrabbing)
