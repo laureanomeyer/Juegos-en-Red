@@ -1,8 +1,9 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
 using Photon.Pun;
 using System.Runtime.CompilerServices;
 using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using static UnityEngine.UI.Image;
 
 public class PlayerCombat : MonoBehaviourPun
 {
@@ -16,6 +17,9 @@ public class PlayerCombat : MonoBehaviourPun
     [SerializeField] private float grabCooldown = 2f;
 
     [SerializeField] private LayerMask playerLayer;
+
+    Vector3 origin;
+    float radius;
 
     private PlayerMovement movement;
     private float pushCooldownTimer;
@@ -66,6 +70,11 @@ public class PlayerCombat : MonoBehaviourPun
     {
         Vector3 origin = transform.position + transform.forward * (range * 0.5f);
         Collider[] hits = Physics.OverlapSphere(origin, radius, playerLayer);
+
+        this.origin = origin;
+        this.radius = radius;
+
+
 
         PlayerCombat closest = null;
         float closestDist = float.MaxValue;
@@ -132,5 +141,10 @@ public class PlayerCombat : MonoBehaviourPun
         if (!photonView.IsMine) return;
    
         movement.SetGrabPartner(grabberActorNumber);
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(origin, radius);
     }
 }

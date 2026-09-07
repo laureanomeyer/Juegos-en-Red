@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 3060999460953996885}
   - component: {fileID: 3773616848608322607}
   - component: {fileID: -3400536108094539037}
-  - component: {fileID: 3031244000452335194}
+  - component: {fileID: -1466987079302432809}
   m_Layer: 6
   m_Name: Player
   m_TagString: Untagged
@@ -169,7 +169,8 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 3060999460953996885}
-  - {fileID: 3031244000452335194}
+  - {fileID: 0}
+  - {fileID: -1466987079302432809}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -204,10 +205,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
   pushRange: 1.5
   pushRadius: 40
-  pushForce: 500
+  pushForce: 25
   pushCooldown: 1
   grabRange: 2
-  grabRadius: 0.8
+  grabRadius: 40
   grabCooldown: 2
   playerLayer:
     serializedVersion: 2
@@ -267,7 +268,7 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &3031244000452335194
+--- !u!114 &-1466987079302432809
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -276,27 +277,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 4086208515560041352}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8efc6b1d64977384eb3405357896c656, type: 3}
+  m_Script: {fileID: 11500000, guid: 64179f3720bbfe947b7724caa67b7c1d, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonTransformViewClassic
-  m_PositionModel:
-    SynchronizeEnabled: 1
-    TeleportEnabled: 1
-    TeleportIfDistanceGreaterThan: 3
-    InterpolateOption: 2
-    InterpolateMoveTowardsSpeed: 1
-    InterpolateLerpSpeed: 1
-    ExtrapolateOption: 0
-    ExtrapolateSpeed: 1
-    ExtrapolateIncludingRoundTripTime: 1
-    ExtrapolateNumberOfStoredPositions: 1
-  m_RotationModel:
-    SynchronizeEnabled: 1
-    InterpolateOption: 1
-    InterpolateRotateTowardsSpeed: 180
-    InterpolateLerpSpeed: 5
-  m_ScaleModel:
-    SynchronizeEnabled: 1
-    InterpolateOption: 0
-    InterpolateMoveTowardsSpeed: 1
-    InterpolateLerpSpeed: 0
+  m_EditorClassIdentifier: PhotonUnityNetworking::Photon.Pun.PhotonRigidbodyView
+  m_SynchronizeVelocity: 1
+  m_SynchronizeAngularVelocity: 0
+  m_TeleportEnabled: 1
+  m_TeleportIfDistanceGreaterThan: 3
