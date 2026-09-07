@@ -3,13 +3,13 @@ using Photon.Pun;
 
 public class PlayerController : MonoBehaviourPun
 {
-    private PLayerMovement movement;
-    private PlayerVItals vitals;
+    private PlayerMovement movement;
+    private PlayerVitals vitals;
 
     private void Awake()
     {
-        movement = GetComponent<PLayerMovement>();
-        vitals = GetComponent<PlayerVItals>();
+        movement = GetComponent<PlayerMovement>();
+        vitals = GetComponent<PlayerVitals>();
     }
 
     private void OnEnable()

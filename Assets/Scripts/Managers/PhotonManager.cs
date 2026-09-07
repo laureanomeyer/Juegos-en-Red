@@ -114,6 +114,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         Debug.Log($"Unido a sala '{PhotonNetwork.CurrentRoom.Name}' ({PhotonNetwork.CurrentRoom.PlayerCount} jugadores)");
+        Debug.Log($"[PhotonManager] Invocando OnRoom. Hay listeners? {OnRoom != null}");
         OnRoom?.Invoke();
     }
 
