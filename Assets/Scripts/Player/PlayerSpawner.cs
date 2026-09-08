@@ -8,7 +8,7 @@ public class PlayerSpawner : MonoBehaviour
     private void Awake()
     {
         Debug.Log($"[PlayerSpawner] Awake. PhotonManager.Instance es null? {PhotonManager.Instance == null}");
-       // PhotonManager.Instance.OnRoom += SpawnPlayer;
+        //PhotonManager.Instance.OnRoom += SpawnPlayer;
         Debug.Log("[PlayerSpawner] Suscripto a OnRoom");
     }
 
