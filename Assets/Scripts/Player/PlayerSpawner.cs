@@ -8,14 +8,21 @@ public class PlayerSpawner : MonoBehaviour
     private void Awake()
     {
         Debug.Log($"[PlayerSpawner] Awake. PhotonManager.Instance es null? {PhotonManager.Instance == null}");
-        PhotonManager.Instance.OnRoom += SpawnPlayer;
+       // PhotonManager.Instance.OnRoom += SpawnPlayer;
         Debug.Log("[PlayerSpawner] Suscripto a OnRoom");
     }
 
-    private void SpawnPlayer()
+    private void Start()
     {
-        Debug.Log("[PlayerSpawner] SpawnPlayer() llamado");
-        var go = PhotonNetwork.Instantiate(playerPrefab.name, new Vector3(playerPrefab.transform.position.x + Random.Range(0, 18), playerPrefab.transform.position.y, playerPrefab.transform.position.z), playerPrefab.transform.rotation);
-        Debug.Log($"[PlayerSpawner] Instantiate devolvió: {(go == null ? "NULL" : go.name)}");
+  
+        if (PhotonNetwork.InRoom)
+        {
+            Vector3 spawnPos = new Vector3(
+                playerPrefab.transform.position.x + Random.Range(0, 10),
+                playerPrefab.transform.position.y,
+                playerPrefab.transform.position.z
+            );
+            PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, playerPrefab.transform.rotation);
+        }
     }
 }

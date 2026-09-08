@@ -5,6 +5,11 @@ using Photon.Pun;
 
 public class RoomUI : MonoBehaviour
 {
+    [Header("Panel")]
+    [SerializeField] private GameObject loginPanel;
+
+    [Header("Inputs & Botones")]
+    [SerializeField] private TMP_InputField nicknameInput;
     [SerializeField] private TMP_InputField roomNameInput;
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private Button createButton;
@@ -13,8 +18,13 @@ public class RoomUI : MonoBehaviour
 
     private void OnEnable()
     {
+        createButton.onClick.RemoveListener(OnCreateClicked);
+        joinButton.onClick.RemoveListener(OnJoinClicked);
+
         createButton.onClick.AddListener(OnCreateClicked);
         joinButton.onClick.AddListener(OnJoinClicked);
+
+        if (PhotonManager.Instance == null) return;
 
         PhotonManager.Instance.OnCreateFailed += ShowError;
         PhotonManager.Instance.OnJoinFailed += ShowError;
@@ -28,10 +38,20 @@ public class RoomUI : MonoBehaviour
         joinButton.onClick.RemoveListener(OnJoinClicked);
 
         if (PhotonManager.Instance == null) return;
+
         PhotonManager.Instance.OnCreateFailed -= ShowError;
         PhotonManager.Instance.OnJoinFailed -= ShowError;
         PhotonManager.Instance.OnRoom -= HideUI;
         PhotonManager.Instance.OnDisconnectedFromServer -= HandleDisconnected;
+    }
+
+    private void ApplyNickname()
+    {
+        string nick = string.IsNullOrWhiteSpace(nicknameInput.text)
+            ? $"Player_{Random.Range(100, 999)}"
+            : nicknameInput.text;
+
+        PhotonNetwork.NickName = nick;
     }
 
     private void OnCreateClicked()
@@ -42,6 +62,7 @@ public class RoomUI : MonoBehaviour
             return;
         }
 
+        ApplyNickname();
         statusText.text = "Creando sala...";
         PhotonManager.Instance.CreateRoom(roomNameInput.text, passwordInput.text);
     }
@@ -54,6 +75,7 @@ public class RoomUI : MonoBehaviour
             return;
         }
 
+        ApplyNickname();
         statusText.text = "Buscando sala...";
         PhotonManager.Instance.JoinRoom(roomNameInput.text, passwordInput.text);
     }
@@ -66,11 +88,11 @@ public class RoomUI : MonoBehaviour
     private void HandleDisconnected()
     {
         statusText.text = "Desconectado del servidor";
-        gameObject.SetActive(true); // por si estaba oculta tras entrar a una sala
+        loginPanel.SetActive(true);
     }
 
     private void HideUI()
     {
-        gameObject.SetActive(false);
+        loginPanel.SetActive(false);
     }
 }
