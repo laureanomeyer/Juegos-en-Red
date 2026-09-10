@@ -1,0 +1,47 @@
+using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+// Controla una fila de la lista de salas disponibles: nombre + "jugadores/max".
+// Se deshabilita sola si la sala está llena o cerrada (partida ya en curso).
+public class RoomListEntryUI : MonoBehaviour
+{
+    [SerializeField] private TMP_Text roomNameText;
+    [SerializeField] private TMP_Text playerCountText;
+    [SerializeField] private Button selectButton;
+    [SerializeField] private GameObject lockIcon; // opcional: se muestra si la sala tiene contraseña
+    [SerializeField] private TMP_Text stateText;  // opcional: "Llena" / "En curso"
+
+    private string roomName;
+
+    public void Setup(string roomName, int playerCount, int maxPlayers, bool hasPassword, bool isOpen, Action<string> onSelected)
+    {
+        this.roomName = roomName;
+
+        if (roomNameText != null) roomNameText.text = roomName;
+        if (playerCountText != null) playerCountText.text = $"{playerCount}/{maxPlayers}";
+        if (lockIcon != null) lockIcon.SetActive(hasPassword);
+
+        bool isFull = playerCount >= maxPlayers;
+        bool isJoinable = isOpen && !isFull;
+
+        if (selectButton != null)
+        {
+            selectButton.interactable = isJoinable;
+        }
+
+        if (stateText != null)
+        {
+            if (!isOpen) stateText.text = "En curso";
+            else if (isFull) stateText.text = "Llena";
+            else stateText.text = string.Empty;
+        }
+
+        if (selectButton != null)
+        {
+            selectButton.onClick.RemoveAllListeners();
+            selectButton.onClick.AddListener(() => onSelected?.Invoke(this.roomName));
+        }
+    }
+}
