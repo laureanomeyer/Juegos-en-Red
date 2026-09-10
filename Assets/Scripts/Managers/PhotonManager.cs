@@ -35,6 +35,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     // dibujar el listado apenas se habilita, sin esperar al próximo OnRoomListUpdate.
     public IReadOnlyDictionary<string, RoomInfo> CachedRoomList => cachedRoomList;
 
+    [Header("Configuración de Zonas (Deathrun)")]
+    [SerializeField] private int totalZonas = 10;
+    [SerializeField] private int variantesDeZona = 4;
+    [SerializeField] private bool evitarZonasConsecutivasRepetidas = true;
+
+    public const string ZONE_SEQ_KEY = "zoneSeq";
 
     private void Awake()
     {
@@ -62,6 +68,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public void CreateRoom(string roomName, string password, byte maxPlayers = 5)
     {
+        int[] zoneSeq = GenerarSecuenciaDeZonas(totalZonas, variantesDeZona, evitarZonasConsecutivasRepetidas);
+
         var options = new RoomOptions
         {
             MaxPlayers = maxPlayers,
@@ -69,16 +77,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             IsOpen = true,
             PlayerTtl = 15000,
             CustomRoomProperties = new Hashtable
-            {
-                { PASSWORD_KEY, password ?? "" },
-                { HAS_PASSWORD_KEY, !string.IsNullOrEmpty(password) }
-            },
-
+        {
+            { PASSWORD_KEY, password ?? "" },
+            { HAS_PASSWORD_KEY, !string.IsNullOrEmpty(password) },
+            { ZONE_SEQ_KEY, zoneSeq } // <-- se genera UNA vez, acá, y viaja con la sala
+        },
             CustomRoomPropertiesForLobby = new[] { PASSWORD_KEY, HAS_PASSWORD_KEY }
+            // zoneSeq NO va en CustomRoomPropertiesForLobby a propósito:
+            // no hace falta mandarla a todo el lobby, solo a quien entra a la sala.
         };
 
         PhotonNetwork.CreateRoom(roomName, options);
     }
+
 
     public void JoinRoom(string roomName, string enteredPassword)
     {
@@ -104,6 +115,27 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public bool RoomHasPassword(RoomInfo info)
     {
         return info != null && info.CustomProperties.TryGetValue(HAS_PASSWORD_KEY, out var hp) && (bool)hp;
+    }
+
+    private int[] GenerarSecuenciaDeZonas(int cantidad, int variantes, bool evitarRepetidas)
+    {
+        int[] seq = new int[cantidad];
+        int anterior = -1;
+
+        for (int i = 0; i < cantidad; i++)
+        {
+            int elegido;
+            do
+            {
+                elegido = UnityEngine.Random.Range(0, variantes);
+            }
+            while (evitarRepetidas && variantes > 1 && elegido == anterior);
+
+            seq[i] = elegido;
+            anterior = elegido;
+        }
+
+        return seq;
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)

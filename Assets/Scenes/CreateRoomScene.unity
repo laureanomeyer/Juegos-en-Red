@@ -2985,6 +2985,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 244e84909488034459ae66ad38e91e35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PhotonManager
+  totalZonas: 5
+  variantesDeZona: 1
+  evitarZonasConsecutivasRepetidas: 0
 --- !u!4 &1057408275
 Transform:
   m_ObjectHideFlags: 0
