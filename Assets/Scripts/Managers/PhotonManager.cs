@@ -31,6 +31,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
     private bool intentionalDisconnect;
 
+    // Acceso de solo lectura a la lista de salas cacheada, para que la UI pueda
+    // dibujar el listado apenas se habilita, sin esperar al próximo OnRoomListUpdate.
+    public IReadOnlyDictionary<string, RoomInfo> CachedRoomList => cachedRoomList;
+
 
     private void Awake()
     {
@@ -93,6 +97,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         }
 
         PhotonNetwork.JoinRoom(roomName);
+    }
+
+    // Le dice a la UI si una sala en particular tiene contraseña, sin exponer
+    // las claves internas de las CustomProperties fuera de este manager.
+    public bool RoomHasPassword(RoomInfo info)
+    {
+        return info != null && info.CustomProperties.TryGetValue(HAS_PASSWORD_KEY, out var hp) && (bool)hp;
     }
 
     public override void OnCreateRoomFailed(short returnCode, string message)

@@ -1,28 +1,27 @@
 using Photon.Pun;
 using UnityEngine;
+using Photon.Realtime;
 
 public class PlayerSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
-
-    private void Awake()
-    {
-        Debug.Log($"[PlayerSpawner] Awake. PhotonManager.Instance es null? {PhotonManager.Instance == null}");
-        //PhotonManager.Instance.OnRoom += SpawnPlayer;
-        Debug.Log("[PlayerSpawner] Suscripto a OnRoom");
-    }
+    [SerializeField] private float spawnSpread = 6f;
 
     private void Start()
     {
-  
-        if (PhotonNetwork.InRoom)
+        if (!PhotonNetwork.InRoom)
         {
-            Vector3 spawnPos = new Vector3(
-                playerPrefab.transform.position.x + Random.Range(0, 10),
-                playerPrefab.transform.position.y,
-                playerPrefab.transform.position.z
-            );
-            PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, playerPrefab.transform.rotation);
+            Debug.LogWarning("[PlayerSpawner] No estamos en una sala, no se instancia el jugador.");
+            return;
         }
+
+        Vector3 basePos = playerPrefab.transform.position;
+        Vector3 spawnPos = new Vector3(
+            basePos.x + Random.Range(-spawnSpread, spawnSpread),
+            basePos.y,
+            basePos.z + Random.Range(-spawnSpread, spawnSpread)
+        );
+
+        PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, playerPrefab.transform.rotation);
     }
 }
