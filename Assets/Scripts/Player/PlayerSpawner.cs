@@ -1,10 +1,10 @@
 using Photon.Pun;
 using UnityEngine;
-using Photon.Realtime;
 
 public class PlayerSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject playerPrefab;
+    [SerializeField] private Transform spawnPoint; 
     [SerializeField] private float spawnSpread = 6f;
 
     private void Start()
@@ -15,7 +15,7 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        Vector3 basePos = playerPrefab.transform.position;
+        Vector3 basePos = spawnPoint != null ? spawnPoint.position : Vector3.zero;
         Vector3 spawnPos = new Vector3(
             basePos.x + Random.Range(-spawnSpread, spawnSpread),
             basePos.y,
