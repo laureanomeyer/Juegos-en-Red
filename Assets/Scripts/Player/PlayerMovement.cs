@@ -3,13 +3,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Photon.Pun;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviourPun, IPunObservable
 {
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float knockdownDuration = 1f;
-    [SerializeField] private float grabSlowRadius = 2f;    
-    [SerializeField] private float grabMaxMultiplier = 0.5f; 
-    [SerializeField] private float grabMinMultiplier = 0.2f; 
+    [SerializeField] private float grabSlowRadius = 2f;
+    [SerializeField] private float grabMaxMultiplier = 0.5f;
+    [SerializeField] private float grabMinMultiplier = 0.2f;
+    [SerializeField] private float interpolationSpeed = 15f; 
 
     private Rigidbody rb;
     private Vector2 moveinput;
@@ -19,6 +20,9 @@ public class PlayerMovement : MonoBehaviour
     private float knockdownTimer;
     private int grabPartnerActor = -1;
 
+    private Vector3 networkPosition;
+    private Quaternion networkRotation;
+
     public static readonly Dictionary<int, PlayerMovement> Registry = new Dictionary<int, PlayerMovement>();
 
     private void Awake()
@@ -26,6 +30,9 @@ public class PlayerMovement : MonoBehaviour
         view = GetComponent<PhotonView>();
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+
+        networkPosition = rb.position;
+        networkRotation = transform.rotation;
     }
 
     private void OnEnable()
@@ -41,19 +48,36 @@ public class PlayerMovement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (!view.IsMine) return;
+        if (view.IsMine)
+        {
+            SimulateLocalMovement();
+        }
+        else
+        {
+            InterpolateRemote();
+        }
+    }
 
+    private void SimulateLocalMovement()
+    {
         if (isKnockedDown)
         {
             knockdownTimer -= Time.fixedDeltaTime;
             if (knockdownTimer <= 0f) isKnockedDown = false;
-            return; 
+            return;
         }
 
         float speedMultiplier = GetGrabMultiplier();
         Vector3 direction = (transform.forward * moveinput.y + transform.right * moveinput.x).normalized;
         Vector3 move = direction * moveSpeed * speedMultiplier * Time.fixedDeltaTime;
         rb.MovePosition(rb.position + move);
+    }
+
+
+    private void InterpolateRemote()
+    {
+        rb.MovePosition(Vector3.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * interpolationSpeed));
+        transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, Time.fixedDeltaTime * interpolationSpeed);
     }
 
     private float GetGrabMultiplier()
@@ -82,5 +106,19 @@ public class PlayerMovement : MonoBehaviour
         knockdownTimer = knockdownDuration;
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(direction * force, ForceMode.Impulse);
+    }
+
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+    {
+        if (stream.IsWriting)
+        {
+            stream.SendNext(rb.position);
+            stream.SendNext(transform.rotation);
+        }
+        else
+        {
+            networkPosition = (Vector3)stream.ReceiveNext();
+            networkRotation = (Quaternion)stream.ReceiveNext();
+        }
     }
 }

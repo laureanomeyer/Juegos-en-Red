@@ -10,15 +10,13 @@ public class RoomListEntryUI : MonoBehaviour
     [SerializeField] private TMP_Text roomNameText;
     [SerializeField] private TMP_Text playerCountText;
     [SerializeField] private Button selectButton;
-    [SerializeField] private GameObject lockIcon; // opcional: se muestra si la sala tiene contraseña
+    [SerializeField] private GameObject lockIcon; // se prende si la sala tiene contraseña
     [SerializeField] private TMP_Text stateText;  // opcional: "Llena" / "En curso"
 
-    private string roomName;
-
-    public void Setup(string roomName, int playerCount, int maxPlayers, bool hasPassword, bool isOpen, Action<string> onSelected)
+    // Avisa con el nombre de la sala Y si tiene contraseña, para que el popup de unión
+    // sepa si tiene que pedir clave o no.
+    public void Setup(string roomName, int playerCount, int maxPlayers, bool hasPassword, bool isOpen, Action<string, bool> onSelected)
     {
-        this.roomName = roomName;
-
         if (roomNameText != null) roomNameText.text = roomName;
         if (playerCountText != null) playerCountText.text = $"{playerCount}/{maxPlayers}";
         if (lockIcon != null) lockIcon.SetActive(hasPassword);
@@ -41,7 +39,7 @@ public class RoomListEntryUI : MonoBehaviour
         if (selectButton != null)
         {
             selectButton.onClick.RemoveAllListeners();
-            selectButton.onClick.AddListener(() => onSelected?.Invoke(this.roomName));
+            selectButton.onClick.AddListener(() => onSelected?.Invoke(roomName, hasPassword));
         }
     }
 }
