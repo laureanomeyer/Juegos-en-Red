@@ -38,7 +38,7 @@ public class ZoneLevelBuilder : MonoBehaviourPun
         {
             int index = secuencia[i];
             Vector3 pos = origen + dirNorm * (zonaLength * i);
-            GameObject zonaGO = Instantiate(zonePrefabs[index], pos, Quaternion.identity, transform);
+            GameObject zonaGO = Instantiate(zonePrefabs[index], pos, zonePrefabs[index].transform.rotation, transform);
 
             var trapComponent = zonaGO.GetComponentInChildren<ITrap>();
             trampas.Add(trapComponent);

@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     [SerializeField] private float grabSlowRadius = 2f;
     [SerializeField] private float grabMaxMultiplier = 0.5f;
     [SerializeField] private float grabMinMultiplier = 0.2f;
-    [SerializeField] private float interpolationSpeed = 15f; 
+    [SerializeField] private float interpolationSpeed = 15f;
 
     private Rigidbody rb;
     private Vector2 moveinput;
@@ -106,6 +106,17 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         knockdownTimer = knockdownDuration;
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(direction * force, ForceMode.Impulse);
+    }
+
+    // Punto de entrada RPC para que trampas (u otros sistemas) empujen a este
+    // jugador directamente, sin depender de PlayerCombat. Reutiliza la misma
+    // lógica local de ApplyKnockback; el chequeo de IsMine evita que se
+    // aplique en las copias remotas del jugador en otros clientes.
+    [PunRPC]
+    public void RPC_ApplyPush(Vector3 direction, float force)
+    {
+        if (!photonView.IsMine) return;
+        ApplyKnockback(direction, force);
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
