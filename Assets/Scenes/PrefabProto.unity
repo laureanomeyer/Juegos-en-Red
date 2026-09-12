@@ -119,6 +119,30 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &29870195 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3902311468588400618, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+  m_PrefabInstance: {fileID: 3171532605285090474}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &29870202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 29870195}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7046f08778ee2499b682373d6c971f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MaceTrap
+  debugActivar: 0
+  swingAxis: {x: 0, y: 0, z: 1}
+  swingAmplitude: 75
+  swingSpeed: 2
+  damping: 0.9
+  damage: 15
+  hitCooldownPerTarget: 0.5
 --- !u!1 &365799781
 GameObject:
   m_ObjectHideFlags: 0
@@ -526,14 +550,50 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 2.51
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 8.84
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.70562434
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.70858616
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155385215843242924, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 4327307874167600433, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      propertyPath: debugActivar
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 9134466459534712083, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
       propertyPath: m_Name
       value: GameObject
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4327307874167600433, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3902311468588400618, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 29870202}
   m_SourcePrefab: {fileID: 100100000, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -66,15 +66,13 @@ public class PlayerCombat : MonoBehaviourPun
         }
     }
 
-    private PlayerCombat FindTarget(float range, float radius)
+    private PlayerCombat FindPlayerTarget(float range, float radius)
     {
         Vector3 origin = transform.position + transform.forward * (range * 0.5f);
         Collider[] hits = Physics.OverlapSphere(origin, radius, playerLayer);
 
         this.origin = origin;
         this.radius = radius;
-
-
 
         PlayerCombat closest = null;
         float closestDist = float.MaxValue;
@@ -85,10 +83,37 @@ public class PlayerCombat : MonoBehaviourPun
             if (combat == null || combat == this) continue;
 
             float dist = Vector3.Distance(transform.position, combat.transform.position);
-            if (dist < closestDist)
+            if (dist < closestDist) { closestDist = dist; closest = combat; }
+        }
+        return closest;
+    }
+
+    private Component FindPushTarget(float range, float radius)
+    {
+        Vector3 origin = transform.position + transform.forward * (range * 0.5f);
+        Collider[] hits = Physics.OverlapSphere(origin, radius, playerLayer);
+
+        this.origin = origin;
+        this.radius = radius;
+
+        Component closest = null;
+        float closestDist = float.MaxValue;
+
+        foreach (var hit in hits)
+        {
+            var combat = hit.GetComponentInParent<PlayerCombat>();
+            if (combat != null && combat != this)
             {
-                closestDist = dist;
-                closest = combat;
+                float dist = Vector3.Distance(transform.position, combat.transform.position);
+                if (dist < closestDist) { closestDist = dist; closest = combat; }
+                continue;
+            }
+
+            var boton = hit.GetComponentInParent<ButtonBehavior>();
+            if (boton != null)
+            {
+                float dist = Vector3.Distance(transform.position, boton.transform.position);
+                if (dist < closestDist) { closestDist = dist; closest = boton; }
             }
         }
         return closest;
@@ -96,17 +121,25 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void TryPush()
     {
-        var target = FindTarget(pushRange, pushRadius);
+        var target = FindPushTarget(pushRange, pushRadius);
         if (target == null) return;
 
         pushCooldownTimer = pushCooldown;
-        Vector3 direction = (target.transform.position - transform.position).normalized;
-        target.photonView.RPC(nameof(ApplyKnockback), RpcTarget.All, direction, pushForce);
+
+        if (target is PlayerCombat playerTarget)
+        {
+            Vector3 direction = (playerTarget.transform.position - transform.position).normalized;
+            playerTarget.photonView.RPC(nameof(ApplyKnockback), RpcTarget.All, direction, pushForce);
+        }
+        else if (target is ButtonBehavior boton)
+        {
+            boton.Interact(this);
+        }
     }
 
     private void TryStartGrab()
     {
-        var target = FindTarget(grabRange, grabRadius);
+        var target = FindPlayerTarget(grabRange, grabRadius); // <-- usa el buscador que SOLO devuelve jugadores
         if (target == null) return;
 
         currentGrabTarget = target;

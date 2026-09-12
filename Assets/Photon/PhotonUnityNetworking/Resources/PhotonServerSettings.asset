@@ -43,6 +43,7 @@ MonoBehaviour:
   - ApplyKnockback
   - ReceiveGrab
   - RPC_StartCountdown
+  - RPC_TriggerTrap
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
