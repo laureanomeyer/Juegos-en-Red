@@ -25,11 +25,16 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     private float knockdownTimer;
     private int grabPartnerActor = -1;
 
+
+
     private Vector3 networkPosition;
     private Quaternion networkRotation;
 
-    // Punto al que se vuelve al perder una vida. Arranca en el spawn inicial
-    // y se puede mover más adelante cuando haya checkpoints en el nivel.
+    private bool isOut;
+    private bool raceEnded;
+    private bool raceFullyEnded;
+
+
     private Vector3 checkpointPosition;
 
     public static readonly Dictionary<int, PlayerMovement> Registry = new Dictionary<int, PlayerMovement>();
@@ -54,24 +59,44 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     private void OnEnable()
     {
         if (view.OwnerActorNr > 0) Registry[view.OwnerActorNr] = this;
+        if (RaceManager.Instance != null)
+        {
+            RaceManager.Instance.OnRunnerOut += HandleRunnerOut;
+            RaceManager.Instance.OnRaceEnded += HandleRaceEnded;
+        }
     }
 
     private void OnDisable()
     {
         if (view.OwnerActorNr > 0 && Registry.TryGetValue(view.OwnerActorNr, out var self) && self == this)
             Registry.Remove(view.OwnerActorNr);
+        if (RaceManager.Instance != null)
+        {
+            RaceManager.Instance.OnRunnerOut -= HandleRunnerOut;
+            RaceManager.Instance.OnRaceEnded -= HandleRaceEnded;
+        }
+    }
+
+    private void HandleRunnerOut(int actorNumber, bool finished)
+    {
+        if (actorNumber != view.OwnerActorNr) return; 
+
+        isOut = true;
+        if (view.IsMine) rb.linearVelocity = Vector3.zero;
+    }
+
+    private void HandleRaceEnded()
+    {
+        raceFullyEnded = true;
+        if (view.IsMine) rb.linearVelocity = Vector3.zero;
     }
 
     private void FixedUpdate()
     {
-        if (view.IsMine)
-        {
-            SimulateLocalMovement();
-        }
-        else
-        {
-            InterpolateRemote();
-        }
+        if (isOut || raceFullyEnded) return;
+
+        if (view.IsMine) SimulateLocalMovement();
+        else InterpolateRemote();
     }
 
     private void SimulateLocalMovement()

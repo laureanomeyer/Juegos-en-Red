@@ -27,6 +27,10 @@ public class PlayerCombat : MonoBehaviourPun
     private bool isGrabbing;
     private PlayerCombat currentGrabTarget;
 
+    private bool raceEnded;
+    private bool isOut;
+    private bool raceFullyEnded;
+
     public float PushCooldownRatio => pushCooldown <= 0f ? 0f : Mathf.Clamp01(pushCooldownTimer / pushCooldown);
     public float GrabCooldownRatio => grabCooldown <= 0f ? 0f : Mathf.Clamp01(grabCooldownTimer / grabCooldown);
 
@@ -37,7 +41,7 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void Update()
     {
-        if (!photonView.IsMine) return;
+        if (!photonView.IsMine || isOut || raceFullyEnded) return;
 
         if (pushCooldownTimer > 0f) pushCooldownTimer -= Time.deltaTime;
         if (grabCooldownTimer > 0f) grabCooldownTimer -= Time.deltaTime;
@@ -67,6 +71,23 @@ public class PlayerCombat : MonoBehaviourPun
                 EndGrab();
             }
         }
+    }
+
+    private void OnEnable()
+    {
+        if (RaceManager.Instance != null)
+        {
+            RaceManager.Instance.OnRunnerOut += HandleRunnerOut;
+            RaceManager.Instance.OnRaceEnded += () => raceFullyEnded = true;
+        }
+    }
+    private void OnDisable()
+    {
+        if (RaceManager.Instance != null) RaceManager.Instance.OnRunnerOut -= HandleRunnerOut;
+    }
+    private void HandleRunnerOut(int actorNumber, bool finished)
+    {
+        if (actorNumber == photonView.OwnerActorNr) isOut = true;
     }
 
     private PlayerCombat FindPlayerTarget(float range, float radius)
