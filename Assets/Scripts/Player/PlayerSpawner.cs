@@ -9,7 +9,7 @@ public class PlayerSpawner : MonoBehaviour
 
     [Header("Spawn")]
     [SerializeField] private GameObject playerPrefab;
-    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private Transform spawnPoint; // Empty hijo de ESTE mismo prefab (StartRoom), dentro de la spawn zone
     [SerializeField] private float spawnSpread = 6f;
 
     private void Start()
@@ -20,10 +20,13 @@ public class PlayerSpawner : MonoBehaviour
             return;
         }
 
-        bool isMaster = PhotonNetwork.IsMasterClient;
-        if (isMaster != spawnForMaster) return; // este spawner no es responsable de este cliente
+        bool isMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
 
-        Vector3 basePos = spawnPoint != null ? spawnPoint.position : Vector3.zero;
+        Debug.Log($"[Spawner] spawnForMaster={spawnForMaster} | LocalActor={PhotonNetwork.LocalPlayer.ActorNumber} | TrapMasterActor={PhotonManager.Instance.GetTrapMasterActor()} | isMaster={isMaster} | ¿dispara este spawner?={isMaster == spawnForMaster}");
+
+        if (isMaster != spawnForMaster) return;
+
+        Vector3 basePos = spawnPoint != null ? spawnPoint.position : transform.position;
         Vector3 spawnPos = new Vector3(
             basePos.x + Random.Range(-spawnSpread, spawnSpread),
             basePos.y,
@@ -31,5 +34,7 @@ public class PlayerSpawner : MonoBehaviour
         );
 
         PhotonNetwork.Instantiate(playerPrefab.name, spawnPos, playerPrefab.transform.rotation);
+
+        Debug.Log($"[Spawner] Sala: {PhotonNetwork.CurrentRoom.Name} | Tiene ZONE_SEQ_KEY? {PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(PhotonManager.ZONE_SEQ_KEY)} | Tiene TRAP_MASTER_ACTOR_KEY? {PhotonNetwork.CurrentRoom.CustomProperties.ContainsKey(PhotonManager.TRAP_MASTER_ACTOR_KEY)}");
     }
 }

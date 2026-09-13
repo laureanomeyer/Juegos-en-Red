@@ -27,6 +27,9 @@ public class PlayerCombat : MonoBehaviourPun
     private bool isGrabbing;
     private PlayerCombat currentGrabTarget;
 
+    public float PushCooldownRatio => pushCooldown <= 0f ? 0f : Mathf.Clamp01(pushCooldownTimer / pushCooldown);
+    public float GrabCooldownRatio => grabCooldown <= 0f ? 0f : Mathf.Clamp01(grabCooldownTimer / grabCooldown);
+
     private void Awake()
     {
         movement = GetComponent<PlayerMovement>();

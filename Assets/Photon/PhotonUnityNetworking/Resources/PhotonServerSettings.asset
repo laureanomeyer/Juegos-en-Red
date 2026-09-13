@@ -46,6 +46,7 @@ MonoBehaviour:
   - RPC_TriggerTrap
   - RPC_ApplyPush
   - LoseLife
+  - RPC_ReportFinish
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0

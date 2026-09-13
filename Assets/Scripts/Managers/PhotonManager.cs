@@ -22,11 +22,17 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public Action<Player> OnPlayerLeft;
     public Action<Player> OnPlayerEntered;
     public Action OnMasterSwiched;
+    public Action OnTrapMasterDisconnected;
+
+    public Action OnReconnecting;
+    public Action OnReconnected;
 
     private const string PASSWORD_KEY = "pwd";
     private const string HAS_PASSWORD_KEY = "hasPwd";
     private const string LOBBY_SCENE_NAME = "LobbyScene";
     private const string MENU_SCENE_NAME = "CreateRoomScene";
+
+    public const string TRAP_MASTER_ACTOR_KEY = "trapMasterActor";
 
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
     private bool intentionalDisconnect;
@@ -80,16 +86,32 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         {
             { PASSWORD_KEY, password ?? "" },
             { HAS_PASSWORD_KEY, !string.IsNullOrEmpty(password) },
-            { ZONE_SEQ_KEY, zoneSeq } // <-- se genera UNA vez, acá, y viaja con la sala
+            { ZONE_SEQ_KEY, zoneSeq }
+
         },
             CustomRoomPropertiesForLobby = new[] { PASSWORD_KEY, HAS_PASSWORD_KEY }
-            // zoneSeq NO va en CustomRoomPropertiesForLobby a propósito:
-            // no hace falta mandarla a todo el lobby, solo a quien entra a la sala.
         };
 
         PhotonNetwork.CreateRoom(roomName, options);
     }
 
+    public bool IsLocalPlayerTrapMaster()
+    {
+        if (!PhotonNetwork.InRoom) return false;
+        return GetTrapMasterActor() == PhotonNetwork.LocalPlayer.ActorNumber;
+    }
+
+    public int GetTrapMasterActor()
+    {
+        if (PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(TRAP_MASTER_ACTOR_KEY, out object raw))
+            return (int)raw;
+        return -1;
+    }
+
+    public bool IsTrapMasterInRoom()
+    {
+        return PhotonNetwork.CurrentRoom.Players.ContainsKey(GetTrapMasterActor());
+    }
 
     public void JoinRoom(string roomName, string enteredPassword)
     {
@@ -167,12 +189,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnJoinedRoom()
     {
+        OnReconnected?.Invoke();
+
         Debug.Log($"Unido a sala '{PhotonNetwork.CurrentRoom.Name}' ({PhotonNetwork.CurrentRoom.PlayerCount} jugadores)");
         OnRoom?.Invoke();
 
-        // Solo el Master Client dispara el cambio de escena.
-        // Gracias a AutomaticallySyncScene, el resto de los jugadores
-        // (los que ya están o los que se unan después) cargan la misma escena solos.
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.LoadLevel(LOBBY_SCENE_NAME);
@@ -194,6 +215,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         base.OnPlayerLeftRoom(otherPlayer);
         OnPlayerLeft?.Invoke(otherPlayer);
+
+        if (otherPlayer.ActorNumber == GetTrapMasterActor())
+            OnTrapMasterDisconnected?.Invoke();
     }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
@@ -202,15 +226,19 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         OnMasterLeftRoom?.Invoke();
     }
 
+    public void LeaveRoomIntentionally()
+    {
+        intentionalDisconnect = true;
+        PhotonNetwork.LeaveRoom();
+    }
+
     public override void OnDisconnected(DisconnectCause cause)
     {
-        Debug.LogWarning($"Desconectado de Photon: {cause}");
-
-        bool esTransitorio = cause == DisconnectCause.ClientTimeout
-                           || cause == DisconnectCause.ServerTimeout;
+        bool esTransitorio = cause == DisconnectCause.ClientTimeout || cause == DisconnectCause.ServerTimeout;
 
         if (esTransitorio && !intentionalDisconnect)
         {
+            OnReconnecting?.Invoke();
             PhotonNetwork.ReconnectAndRejoin();
         }
         else
@@ -221,10 +249,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         intentionalDisconnect = false;
     }
-
-    public void LeaveRoomIntentionally()
+    public override void OnCreatedRoom()
     {
-        intentionalDisconnect = true;
-        PhotonNetwork.LeaveRoom();
+        // Se dispara solo del lado de quien creó la sala, ya con un ActorNumber válido.
+        var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, PhotonNetwork.LocalPlayer.ActorNumber } };
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+
+        Debug.Log($"[PhotonManager] Sala creada. Trap master seteado como ActorNumber={PhotonNetwork.LocalPlayer.ActorNumber}");
     }
 }
