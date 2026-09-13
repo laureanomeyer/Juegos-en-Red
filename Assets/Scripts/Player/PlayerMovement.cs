@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     [SerializeField] private float grabSlowRadius = 2f;
     [SerializeField] private float grabMaxMultiplier = 0.5f;
     [SerializeField] private float grabMinMultiplier = 0.2f;
-    [SerializeField] private float interpolationSpeed = 15f;
+    [SerializeField] private Transform cameraTransform;
 
     private Rigidbody rb;
     private Vector2 moveinput;
@@ -29,7 +29,6 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     {
         view = GetComponent<PhotonView>();
         rb = GetComponent<Rigidbody>();
-        rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
 
         networkPosition = rb.position;
         networkRotation = transform.rotation;
@@ -52,10 +51,6 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         {
             SimulateLocalMovement();
         }
-        else
-        {
-            InterpolateRemote();
-        }
     }
 
     private void SimulateLocalMovement()
@@ -68,16 +63,30 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         }
 
         float speedMultiplier = GetGrabMultiplier();
-        Vector3 direction = (transform.forward * moveinput.y + transform.right * moveinput.x).normalized;
-        Vector3 move = direction * moveSpeed * speedMultiplier * Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
+        Vector3 direction = GetCameraRelativeDirection();
+
+        Vector3 targetVel = direction * moveSpeed * speedMultiplier;
+        targetVel.y = rb.linearVelocity.y;
+        rb.linearVelocity = targetVel;
     }
 
-
-    private void InterpolateRemote()
+    private Vector3 GetCameraRelativeDirection()
     {
-        rb.MovePosition(Vector3.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * interpolationSpeed));
-        transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, Time.fixedDeltaTime * interpolationSpeed);
+        if (cameraTransform == null)
+        {
+            return (transform.forward * moveinput.y + transform.right * moveinput.x).normalized;
+        }
+
+        Vector3 camForward = cameraTransform.forward;
+        Vector3 camRight = cameraTransform.right;
+
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 direction = camForward * moveinput.y + camRight * moveinput.x;
+        return direction.sqrMagnitude > 0.0001f ? direction.normalized : Vector3.zero;
     }
 
     private float GetGrabMultiplier()
@@ -108,10 +117,6 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         rb.AddForce(direction * force, ForceMode.Impulse);
     }
 
-    // Punto de entrada RPC para que trampas (u otros sistemas) empujen a este
-    // jugador directamente, sin depender de PlayerCombat. Reutiliza la misma
-    // lógica local de ApplyKnockback; el chequeo de IsMine evita que se
-    // aplique en las copias remotas del jugador en otros clientes.
     [PunRPC]
     public void RPC_ApplyPush(Vector3 direction, float force)
     {
