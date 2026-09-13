@@ -1737,16 +1737,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneLevelBuilder
   zonePrefabs:
+  - {fileID: 9134466459534712083, guid: a9558dd02875e214395a1d0ad3bfb90c, type: 3}
+  - {fileID: 9134466459534712083, guid: 763e943c65d634841982950333fe064a, type: 3}
   - {fileID: 9134466459534712083, guid: ab4d53f264d833a4887b6efdb924795a, type: 3}
-  - {fileID: 9134466459534712083, guid: 5d82067ad22880b4782f73aec8898559, type: 3}
-  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
-  - {fileID: 9134466459534712083, guid: ab4d53f264d833a4887b6efdb924795a, type: 3}
+  - {fileID: 9134466459534712083, guid: a9558dd02875e214395a1d0ad3bfb90c, type: 3}
   origen: {x: 0, y: 0, z: 0}
   trapCooldown: 5
-  safeRoomPrefab: {fileID: 9134466459534712083, guid: ab4d53f264d833a4887b6efdb924795a, type: 3}
+  safeRoomPrefab: {fileID: 9134466459534712083, guid: abdffd2671ece224993e5bbb20ac639b, type: 3}
   insertarDespuesDeZona: 5
-  finishLinePrefab: {fileID: 9134466459534712083, guid: 7a278a46d1b8a6246815b2fa95508f58, type: 3}
-  startPrefab: {fileID: 9134466459534712083, guid: 609d95ed88dc7a747a52da999eb987c4, type: 3}
+  finishLinePrefab: {fileID: 9134466459534712083, guid: f0c0a77b4f424114386adbac4ea79daf, type: 3}
+  startPrefab: {fileID: 9134466459534712083, guid: 068ae2db8b847fe43aff7bc8110f915b, type: 3}
   rotacionGlobalY: 0
 --- !u!4 &1919684937
 Transform:
