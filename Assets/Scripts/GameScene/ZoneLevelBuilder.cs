@@ -2,35 +2,16 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-// Vive en la GameScene. Lee la secuencia de zonas que el Master generó
-// y guardó como Custom Property de la sala al crearla (PhotonManager.CreateRoom),
-// e instancia los prefabs LOCALMENTE en cada cliente. No hace falta que sea
-// networked: como todos leen la misma property, todos arman el mismo nivel.
-// Cada pieza (zona, safe room, finish line) se encadena por sus puntos
-// Head/Tail (ver RoomEndpoints), así que el tamaño real de cada prefab
-// no importa: la distancia y orientación las define la geometría, no un
-// valor fijo en el Inspector.
 [RequireComponent(typeof(PhotonView))]
 public class ZoneLevelBuilder : MonoBehaviourPun
 {
-    [Tooltip("Mismo orden y misma cantidad de elementos en TODOS los clientes.")]
     [SerializeField] private GameObject[] zonePrefabs;
     [SerializeField] private Vector3 origen = Vector3.zero;
     [SerializeField] private float trapCooldown = 5f;
-
-    [Header("Checkpoint / Habitación Segura")]
     [SerializeField] private GameObject safeRoomPrefab;
-    [Tooltip("Después de completar N zonas de trampa se inserta la habitación segura. Ej: 5 = después de la 5ta trampa.")]
     [SerializeField] private int insertarDespuesDeZona = 5;
-
-    [Header("Meta")]
     [SerializeField] private GameObject finishLinePrefab;
-
-    [Header("Inicio")]
     [SerializeField] private GameObject startPrefab;
-
-    [Header("Orientación")]
-    [Tooltip("180 invierte la dirección completa del recorrido sin tocar los prefabs individuales.")]
     [SerializeField] private float rotacionGlobalY = 0f;
 
     private readonly List<ITrap> trampas = new List<ITrap>();
@@ -69,11 +50,22 @@ public class ZoneLevelBuilder : MonoBehaviourPun
             int index = secuencia[i];
             cursor = InstanciarPieza(zonePrefabs[index], cursor, out GameObject zonaGO);
 
-            var trapComponent = zonaGO.GetComponentInChildren<ITrap>();
-            trampas.Add(trapComponent);
+            // Cada zona puede traer VARIOS botones, cada uno con su propia
+            // trampa asignada a mano en el Inspector (ButtonBehavior.Trap).
+            // Ya no asumimos "una trampa y un botón por zona".
+            var botones = zonaGO.GetComponentsInChildren<ButtonBehavior>(true);
+            foreach (var boton in botones)
+            {
+                ITrap trapDelBoton = boton.Trap;
+                if (trapDelBoton == null)
+                {
+                    Debug.LogError($"[Builder] El botón '{boton.name}' en '{zonaGO.name}' no tiene ninguna trampa asignada en 'Trap Behaviour'.");
+                    continue;
+                }
 
-            var boton = zonaGO.GetComponentInChildren<ButtonBehavior>();
-            boton?.Initialize(this, trampas.Count - 1);
+                trampas.Add(trapDelBoton);
+                boton.Initialize(this, trampas.Count - 1);
+            }
         }
 
         if (finishLinePrefab != null)
