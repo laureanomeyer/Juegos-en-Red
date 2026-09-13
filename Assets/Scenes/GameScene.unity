@@ -557,9 +557,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneLevelBuilder
   zonePrefabs:
-  - {fileID: 9134466459534712083, guid: 5d82067ad22880b4782f73aec8898559, type: 3}
   - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
-  - {fileID: 9134466459534712083, guid: 5d82067ad22880b4782f73aec8898559, type: 3}
+  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
+  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
   - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
   zonaLength: 44.6
   origen: {x: 0, y: 0, z: 0}
