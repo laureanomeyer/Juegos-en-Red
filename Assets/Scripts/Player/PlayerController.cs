@@ -28,11 +28,11 @@ public class PlayerController : MonoBehaviourPun
         {
             masterPlayerCamera.enabled = true;
             playerCamera.enabled = false;
-        } 
+        }
         else
         {
             playerCamera.enabled = true;
-            masterPlayerCamera.enabled= false;
+            masterPlayerCamera.enabled = false;
         }
 
         if (playerCamera != null && !view.IsMine)
@@ -47,12 +47,19 @@ public class PlayerController : MonoBehaviourPun
 
     private void OnEnable()
     {
-        vitals.OnDepleted += HandleDepleted; 
+        vitals.OnLifeLost += HandleLifeLost;
+        vitals.OnDepleted += HandleDepleted;
     }
 
     private void OnDisable()
     {
+        vitals.OnLifeLost -= HandleLifeLost;
         vitals.OnDepleted -= HandleDepleted;
+    }
+
+    private void HandleLifeLost()
+    {
+        movement.RespawnAtCheckpoint();
     }
 
     private void HandleDepleted()

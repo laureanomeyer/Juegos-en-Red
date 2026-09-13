@@ -2,12 +2,6 @@ using System.Collections;
 using Photon.Pun;
 using UnityEngine;
 
-// Trampa de "pozo con pinchos": al activarse, el piso desaparece y expone
-// los pinchos de abajo, que matan al toque. Después de un tiempo el piso vuelve,
-// para que la trampa se pueda volver a usar.
-//
-// Va pegado en el objeto de los pinchos (con su Collider marcado como Trigger).
-// El "floor" es una referencia al piso hermano que se apaga/prende.
 public class SpikePitTrap : MonoBehaviour, ITrap
 {
     [Header("Piso")]
@@ -41,11 +35,8 @@ public class SpikePitTrap : MonoBehaviour, ITrap
         PlayerVitals vitals = other.GetComponentInParent<PlayerVitals>();
         if (vitals == null) return;
 
-        // Solo el dueño de ESE jugador reporta su propia muerte - evita que
-        // varios clientes (que corren la física local del mismo trigger) manden
-        // el mismo RPC de daño repetido.
         if (!vitals.photonView.IsMine) return;
 
-        vitals.photonView.RPC(nameof(PlayerVitals.ApplyDamage), RpcTarget.All, float.MaxValue);
+        vitals.photonView.RPC(nameof(PlayerVitals.LoseLife), RpcTarget.All);
     }
 }

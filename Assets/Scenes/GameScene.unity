@@ -362,7 +362,7 @@ Transform:
   m_GameObject: {fileID: 1312038792}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 42, y: 22, z: 57}
+  m_LocalPosition: {x: 42, y: 22, z: 62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -557,10 +557,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ZoneLevelBuilder
   zonePrefabs:
-  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
-  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
-  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
-  - {fileID: 9134466459534712083, guid: f6cd00ed6e5b5564d8c856d38a595605, type: 3}
+  - {fileID: 9134466459534712083, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+  - {fileID: 9134466459534712083, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+  - {fileID: 9134466459534712083, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
+  - {fileID: 9134466459534712083, guid: ff1b4db81b5591d4caaa9ceef63dc735, type: 3}
   zonaLength: 44.6
   origen: {x: 0, y: 0, z: 0}
   direccion: {x: 1, y: 0, z: 0}

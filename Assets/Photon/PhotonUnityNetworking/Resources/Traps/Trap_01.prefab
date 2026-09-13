@@ -1103,7 +1103,7 @@ MonoBehaviour:
   debugActivar: 0
   swingAxis: {x: 0, y: 0, z: 1}
   swingDuration: 1.5
-  damage: 15
+  pushForce: 30
   hitCooldownPerTarget: 0.5
 --- !u!1 &4553090493031358427
 GameObject:
@@ -1424,7 +1424,7 @@ MonoBehaviour:
   debugActivar: 0
   swingAxis: {x: 0, y: 0, z: 1}
   swingDuration: 1.5
-  damage: 15
+  pushForce: 12
   hitCooldownPerTarget: 0.5
 --- !u!1 &7069468381030267620
 GameObject:
@@ -1479,7 +1479,7 @@ MonoBehaviour:
   debugActivar: 0
   swingAxis: {x: 0, y: 0, z: 1}
   swingDuration: 1.5
-  damage: 15
+  pushForce: 30
   hitCooldownPerTarget: 0.5
 --- !u!1 &7293622951005955299
 GameObject:
@@ -1534,7 +1534,7 @@ MonoBehaviour:
   debugActivar: 0
   swingAxis: {x: 0, y: 0, z: 1}
   swingDuration: 1.5
-  damage: 15
+  pushForce: 30
   hitCooldownPerTarget: 0.5
 --- !u!1 &7486309984851055267
 GameObject:

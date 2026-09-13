@@ -28,6 +28,10 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     private Vector3 networkPosition;
     private Quaternion networkRotation;
 
+    // Punto al que se vuelve al perder una vida. Arranca en el spawn inicial
+    // y se puede mover más adelante cuando haya checkpoints en el nivel.
+    private Vector3 checkpointPosition;
+
     public static readonly Dictionary<int, PlayerMovement> Registry = new Dictionary<int, PlayerMovement>();
 
     private void Awake()
@@ -37,12 +41,13 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
         networkPosition = rb.position;
         networkRotation = transform.rotation;
+        checkpointPosition = rb.position;
 
         if (PhotonNetwork.IsMasterClient)
         {
             cameraTransform = mainPlayerCamerTransform;
         }
-        else 
+        else
             cameraTransform = runnerCameraTransform;
     }
 
@@ -143,6 +148,26 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     {
         if (!photonView.IsMine) return;
         ApplyKnockback(direction, force);
+    }
+
+    // Para cuando haya checkpoints en el nivel: los llama un trigger de
+    // checkpoint cuando el jugador (dueño) pasa por ahí.
+    public void SetCheckpoint(Vector3 position)
+    {
+        checkpointPosition = position;
+    }
+
+    // Lo llama PlayerController cuando PlayerVitals avisa que se perdió una
+    // vida (y todavía quedan más).
+    public void RespawnAtCheckpoint()
+    {
+        isKnockedDown = false;
+        rb.linearVelocity = Vector3.zero;
+        rb.position = checkpointPosition;
+        transform.position = checkpointPosition;
+
+        networkPosition = checkpointPosition;
+        networkRotation = transform.rotation;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)

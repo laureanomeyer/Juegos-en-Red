@@ -1,49 +1,51 @@
 using UnityEngine;
 using Photon.Pun;
-using Unity.VisualScripting;
 
 public class PlayerVitals : MonoBehaviourPun, IPunObservable
 {
-    [SerializeField] private float maxValue = 100f; 
-    private float currentValue;
+    [SerializeField] private int maxLives = 4;
+    private int currentLives;
 
-    public float CurrentValue => currentValue;
-    public System.Action<float> OnValueChanged;
+    public int CurrentLives => currentLives;
+    public int MaxLives => maxLives;
+
+    public System.Action<int> OnLivesChanged;
+    public System.Action OnLifeLost;
     public System.Action OnDepleted;
 
     private void Awake()
     {
-        currentValue = maxValue;
+        currentLives = maxLives;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
         {
-            stream.SendNext(currentValue);
+            stream.SendNext(currentLives);
         }
         else
         {
-            currentValue = (float)stream.ReceiveNext();
-            OnValueChanged?.Invoke(currentValue);
+            currentLives = (int)stream.ReceiveNext();
+            OnLivesChanged?.Invoke(currentLives);
         }
     }
 
     [PunRPC]
-    public void ApplyDamage(float amount)
+    public void LoseLife()
     {
-        currentValue -= amount;
-        OnValueChanged?.Invoke(currentValue);
+        currentLives = Mathf.Max(0, currentLives - 1);
+        OnLivesChanged?.Invoke(currentLives);
 
-        if (currentValue <= 0)
+        if (!photonView.IsMine) return;
+
+        if (currentLives <= 0)
         {
-            HandleDepleted();
+            OnDepleted?.Invoke();
         }
-    }
-
-    private void HandleDepleted() 
-    {
-        if (!photonView.IsMine) return; 
-        OnDepleted?.Invoke();
+        else
+        {
+            OnLifeLost?.Invoke();
+        }
     }
 }
