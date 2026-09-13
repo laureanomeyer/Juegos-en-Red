@@ -125,9 +125,10 @@ public class RaceManager : MonoBehaviourPun
             OnMasterWon?.Invoke();
         }
 
-        Debug.Log($"[RaceManager] RPC_EndRace recibido. ¿Este cliente es Photon MasterClient? {PhotonNetwork.IsMasterClient} | Volviendo al lobby en {secondsBeforeReturnToLobby}s si aplica.");
+        bool esTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
+        Debug.Log($"[RaceManager] RPC_EndRace | LocalActor={PhotonNetwork.LocalPlayer.ActorNumber} | TrapMasterActor={PhotonManager.Instance.GetTrapMasterActor()} | ¿EsTrapMaster?={esTrapMaster} | ¿Va a agendar LoadLobby?={esTrapMaster}");
 
-        if (PhotonNetwork.IsMasterClient)
+        if (esTrapMaster)
         {
             Invoke(nameof(LoadLobby), secondsBeforeReturnToLobby);
         }
