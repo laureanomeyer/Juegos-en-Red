@@ -138,7 +138,7 @@ public class RaceManager : MonoBehaviourPun
 
     private void LoadLobby()
     {
-        Debug.Log("[RaceManager] LoadLobby ejecutándose ahora.");
+        PhotonNetwork.CurrentRoom.IsOpen = true;
         PhotonNetwork.LoadLevel(lobbySceneName);
     }
 }
