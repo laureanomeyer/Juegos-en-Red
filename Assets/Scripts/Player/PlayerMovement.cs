@@ -10,7 +10,11 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     [SerializeField] private float grabSlowRadius = 2f;
     [SerializeField] private float grabMaxMultiplier = 0.5f;
     [SerializeField] private float grabMinMultiplier = 0.2f;
-    [SerializeField] private Transform cameraTransform;
+    [SerializeField] private Transform mainPlayerCamerTransform;
+    [SerializeField] private Transform runnerCameraTransform;
+
+    private Transform cameraTransform;
+
 
     private Rigidbody rb;
     private Vector2 moveinput;
@@ -32,6 +36,13 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
         networkPosition = rb.position;
         networkRotation = transform.rotation;
+
+        if (PhotonNetwork.IsMasterClient)
+        {
+            cameraTransform = mainPlayerCamerTransform;
+        }
+        else 
+            cameraTransform = runnerCameraTransform;
     }
 
     private void OnEnable()
