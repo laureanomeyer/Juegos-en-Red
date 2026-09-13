@@ -99,8 +99,10 @@ public class RaceManager : MonoBehaviourPun
         if (totalRunners <= 0) return;
         if (finishedActors.Count + eliminatedActors.Count < totalRunners) return;
 
-        // Todos los corredores tienen destino resuelto: si al menos uno llegó,
-        // el veredicto general es "corredores ganaron" (derrota del master).
+        // Solo el Photon MasterClient real envía la RPC de fin de partida,
+        // así evitamos que cada cliente mande su propio broadcast por separado.
+        if (!PhotonNetwork.IsMasterClient) return;
+
         bool anyoneEscaped = finishedActors.Count > 0;
         EndRace(anyoneEscaped);
     }
@@ -125,9 +127,10 @@ public class RaceManager : MonoBehaviourPun
             OnMasterWon?.Invoke();
         }
 
-        Debug.Log($"[RaceManager] RPC_EndRace recibido. ¿Este cliente es Photon MasterClient? {PhotonNetwork.IsMasterClient} | Volviendo al lobby en {secondsBeforeReturnToLobby}s si aplica.");
+        bool esTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
+        Debug.Log($"[RaceManager] RPC_EndRace | LocalActor={PhotonNetwork.LocalPlayer.ActorNumber} | TrapMasterActor={PhotonManager.Instance.GetTrapMasterActor()} | ¿EsTrapMaster?={esTrapMaster} | ¿Va a agendar LoadLobby?={esTrapMaster}");
 
-        if (PhotonNetwork.IsMasterClient)
+        if (esTrapMaster)
         {
             Invoke(nameof(LoadLobby), secondsBeforeReturnToLobby);
         }
@@ -135,7 +138,7 @@ public class RaceManager : MonoBehaviourPun
 
     private void LoadLobby()
     {
-        Debug.Log("[RaceManager] LoadLobby ejecutándose ahora.");
+        PhotonNetwork.CurrentRoom.IsOpen = true;
         PhotonNetwork.LoadLevel(lobbySceneName);
     }
 }

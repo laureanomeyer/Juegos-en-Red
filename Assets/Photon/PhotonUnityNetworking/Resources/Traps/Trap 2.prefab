@@ -239,6 +239,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0daf7dbddcfe9704597f82499fbb2012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonBehavior
+  trapBehaviour: {fileID: 5987024024170834132}
 --- !u!54 &7133565722718533950
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -632,7 +633,7 @@ Transform:
   m_GameObject: {fileID: 5854661320168986872}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -5, y: 10, z: 13}
+  m_LocalPosition: {x: -5.17, y: 10, z: 13}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -903,7 +904,7 @@ Transform:
   m_GameObject: {fileID: 8183202246074709935}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -35, y: 10, z: 13}
+  m_LocalPosition: {x: -34.772, y: 10, z: 13}
   m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
