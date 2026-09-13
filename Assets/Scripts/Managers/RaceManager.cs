@@ -99,8 +99,10 @@ public class RaceManager : MonoBehaviourPun
         if (totalRunners <= 0) return;
         if (finishedActors.Count + eliminatedActors.Count < totalRunners) return;
 
-        // Todos los corredores tienen destino resuelto: si al menos uno llegó,
-        // el veredicto general es "corredores ganaron" (derrota del master).
+        // Solo el Photon MasterClient real envía la RPC de fin de partida,
+        // así evitamos que cada cliente mande su propio broadcast por separado.
+        if (!PhotonNetwork.IsMasterClient) return;
+
         bool anyoneEscaped = finishedActors.Count > 0;
         EndRace(anyoneEscaped);
     }
