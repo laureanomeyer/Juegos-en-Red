@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     [SerializeField] private float grabSlowRadius = 2f;
     [SerializeField] private float grabMaxMultiplier = 0.5f;
     [SerializeField] private float grabMinMultiplier = 0.2f;
+    [SerializeField] private float interpolationSpeed = 15f;
     [SerializeField] private Transform mainPlayerCamerTransform;
     [SerializeField] private Transform runnerCameraTransform;
 
@@ -62,6 +63,10 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         {
             SimulateLocalMovement();
         }
+        else
+        {
+            InterpolateRemote();
+        }
     }
 
     private void SimulateLocalMovement()
@@ -79,6 +84,11 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         Vector3 targetVel = direction * moveSpeed * speedMultiplier;
         targetVel.y = rb.linearVelocity.y;
         rb.linearVelocity = targetVel;
+    }
+    private void InterpolateRemote()
+    {
+        rb.MovePosition(Vector3.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * interpolationSpeed));
+        transform.rotation = Quaternion.Lerp(transform.rotation, networkRotation, Time.fixedDeltaTime * interpolationSpeed);
     }
 
     private Vector3 GetCameraRelativeDirection()
