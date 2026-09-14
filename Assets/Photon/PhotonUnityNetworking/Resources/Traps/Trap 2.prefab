@@ -1825,8 +1825,8 @@ MonoBehaviour:
   debugActivar: 0
   fanVisual: {fileID: 2273887309573319782}
   activeDuration: 3
-  pushForce: 12.8
-  pushInterval: 0.5
+  pushForce: 30
+  windFadeSpeed: 20
   pushDirectionSource: {fileID: 7711877028479670157}
 --- !u!65 &3252659969082228362
 BoxCollider:
