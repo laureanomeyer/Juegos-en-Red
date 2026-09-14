@@ -31,6 +31,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     private bool isOut;
     private bool raceEnded;
     private bool raceFullyEnded;
+    private bool isAttemptingGrab;
 
 
     private Vector3 checkpointPosition;
@@ -140,7 +141,8 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
     private float GetGrabMultiplier()
     {
-        return grabPartnerActor < 0 ? 1f : grabSlowMultiplier;
+        if (grabPartnerActor >= 0 || isAttemptingGrab) return grabSlowMultiplier;
+        return 1f;
     }
 
     public void OnMove(InputValue action)
@@ -159,6 +161,12 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         knockdownTimer = knockdownDuration;
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(direction * force, ForceMode.Impulse);
+    }
+
+
+    public void SetAttemptingGrab(bool value)
+    {
+        isAttemptingGrab = value;
     }
 
     [PunRPC]
