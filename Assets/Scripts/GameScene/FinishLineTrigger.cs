@@ -10,5 +10,6 @@ public class FinishLineTrigger : MonoBehaviour
         if (view.GetComponent<PlayerVitals>() == null) return; // solo jugadores, no props
 
         RaceManager.Instance.ReportFinish();
+        GetComponent<Collider>().enabled = false;
     }
 }
