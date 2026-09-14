@@ -901,12 +901,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ff61401ec218294f9557d03fdffb992, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
-  pushRange: 1.5
-  pushRadius: 40
+  pushRange: 2
+  pushRadius: 2
   pushForce: 25
   pushCooldown: 1
   grabRange: 2
-  grabRadius: 40
+  grabRadius: 2
   grabCooldown: 2
   playerLayer:
     serializedVersion: 2
