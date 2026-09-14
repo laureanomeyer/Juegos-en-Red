@@ -8,7 +8,6 @@ using UnityEngine;
 [RequireComponent(typeof(PhotonView))]
 public class RaceManager : MonoBehaviourPun
 {
-    public static PhotonView Instance_PhotonView; // no usado, placeholder eliminado abajo
     public static RaceManager Instance;
 
     [SerializeField] private float secondsBeforeReturnToLobby = 5f;
@@ -98,27 +97,10 @@ public class RaceManager : MonoBehaviourPun
     {
         if (totalRunners <= 0) return;
         if (finishedActors.Count + eliminatedActors.Count < totalRunners) return;
-
-        // En vez de esperar la reasignación oficial de Master Client (que puede
-        // demorar hasta 10 segundos tras una desconexión), calculamos nosotros
-        // mismos quién es el actor de menor ActorNumber TODAVÍA en la sala,
-        // usando el listado de jugadores que Photon ya actualizó localmente.
-        if (!IsLocalPlayerLowestRemainingActor()) return;
+        if (!EsElActorMasBajoPresente()) return;
 
         bool anyoneEscaped = finishedActors.Count > 0;
         EndRace(anyoneEscaped);
-    }
-
-    private bool IsLocalPlayerLowestRemainingActor()
-    {
-        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
-
-        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
-        {
-            if (kvp.Key < localActor) return false;
-        }
-
-        return true;
     }
 
     private void EndRace(bool runnersWon)
@@ -142,12 +124,32 @@ public class RaceManager : MonoBehaviourPun
         }
 
         bool esTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
-        Debug.Log($"[RaceManager] RPC_EndRace | LocalActor={PhotonNetwork.LocalPlayer.ActorNumber} | TrapMasterActor={PhotonManager.Instance.GetTrapMasterActor()} | ¿EsTrapMaster?={esTrapMaster} | ¿Va a agendar LoadLobby?={esTrapMaster}");
+        bool trapMasterPresente = PhotonManager.Instance.IsTrapMasterInRoom();
 
-        if (esTrapMaster)
+        // Si el Trap Master ya abandonó la sala, la Custom Property nunca se
+        // actualiza sola — así que nadie volvería a cumplir esTrapMaster nunca
+        // más. En ese caso, el actor de menor ActorNumber presente toma la
+        // responsabilidad de volver al lobby.
+        bool debeCargarLobby = esTrapMaster || (!trapMasterPresente && EsElActorMasBajoPresente());
+
+        Debug.Log($"[RaceManager] RPC_EndRace | LocalActor={PhotonNetwork.LocalPlayer.ActorNumber} | TrapMasterActor={PhotonManager.Instance.GetTrapMasterActor()} | ¿TrapMasterPresente?={trapMasterPresente} | ¿EsTrapMaster?={esTrapMaster} | ¿VaAAgendarLoadLobby?={debeCargarLobby}");
+
+        if (debeCargarLobby)
         {
             Invoke(nameof(LoadLobby), secondsBeforeReturnToLobby);
         }
+    }
+
+    private bool EsElActorMasBajoPresente()
+    {
+        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
+
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key < localActor) return false;
+        }
+
+        return true;
     }
 
     private void LoadLobby()

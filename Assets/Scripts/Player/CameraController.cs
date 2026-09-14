@@ -22,6 +22,7 @@ public class CameraController : MonoBehaviour
     private void HandleCameras(bool isMain)
     {
         if (!view.IsMine) return;
+        if (target == null) return;
 
         if (isMain) 
         {
