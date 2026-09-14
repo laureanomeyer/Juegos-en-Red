@@ -99,12 +99,26 @@ public class RaceManager : MonoBehaviourPun
         if (totalRunners <= 0) return;
         if (finishedActors.Count + eliminatedActors.Count < totalRunners) return;
 
-        // Solo el Photon MasterClient real envía la RPC de fin de partida,
-        // así evitamos que cada cliente mande su propio broadcast por separado.
-        if (!PhotonNetwork.IsMasterClient) return;
+        // En vez de esperar la reasignación oficial de Master Client (que puede
+        // demorar hasta 10 segundos tras una desconexión), calculamos nosotros
+        // mismos quién es el actor de menor ActorNumber TODAVÍA en la sala,
+        // usando el listado de jugadores que Photon ya actualizó localmente.
+        if (!IsLocalPlayerLowestRemainingActor()) return;
 
         bool anyoneEscaped = finishedActors.Count > 0;
         EndRace(anyoneEscaped);
+    }
+
+    private bool IsLocalPlayerLowestRemainingActor()
+    {
+        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
+
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key < localActor) return false;
+        }
+
+        return true;
     }
 
     private void EndRace(bool runnersWon)
