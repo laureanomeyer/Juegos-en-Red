@@ -11,15 +11,23 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
 
     private void Awake()
     {
-        if (ownerView == null) ownerView = GetComponent<PhotonView>();
+        if (ownerView == null) ownerView = GetComponentInParent<PhotonView>();
     }
 
     private void Update()
     {
-        if (!ownerView.IsMine) return;
+        if (ownerView.IsMine)
+        {
+            pushCooldownFill.fillAmount = combat.PushCooldownRatio;
+            grabCooldownFill.fillAmount = combat.GrabCooldownRatio;
+        }
+    }
 
-        pushCooldownFill.fillAmount = combat.PushCooldownRatio;
-        grabCooldownFill.fillAmount = combat.GrabCooldownRatio;
+    private void LateUpdate()
+    {
+        if (Camera.main == null) return;
+
+        transform.forward = Camera.main.transform.forward;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
@@ -28,12 +36,11 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
         {
             stream.SendNext(pushCooldownFill.fillAmount);
             stream.SendNext(grabCooldownFill.fillAmount);
-
         }
         else
         {
-            this.pushCooldownFill.fillAmount = (float)stream.ReceiveNext();
-            this.grabCooldownFill.fillAmount = (float)stream.ReceiveNext();
+            pushCooldownFill.fillAmount = (float)stream.ReceiveNext();
+            grabCooldownFill.fillAmount = (float)stream.ReceiveNext();
         }
     }
 }
