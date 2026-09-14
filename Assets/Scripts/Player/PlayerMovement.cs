@@ -7,9 +7,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 {
     [SerializeField] private float moveSpeed = 8f;
     [SerializeField] private float knockdownDuration = 1f;
-    [SerializeField] private float grabSlowRadius = 2f;
-    [SerializeField] private float grabMaxMultiplier = 0.5f;
-    [SerializeField] private float grabMinMultiplier = 0.2f;
+    [SerializeField] private float grabSlowMultiplier = 0.4f;
     [SerializeField] private float interpolationSpeed = 15f;
     [SerializeField] private Transform mainPlayerCamerTransform;
     [SerializeField] private Transform runnerCameraTransform;
@@ -142,12 +140,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
     private float GetGrabMultiplier()
     {
-        if (grabPartnerActor < 0) return 1f;
-        if (!Registry.TryGetValue(grabPartnerActor, out var partner) || partner == null) return 1f;
-
-        float dist = Vector3.Distance(transform.position, partner.transform.position);
-        float t = Mathf.Clamp01(dist / grabSlowRadius);
-        return Mathf.Lerp(grabMinMultiplier, grabMaxMultiplier, t);
+        return grabPartnerActor < 0 ? 1f : grabSlowMultiplier;
     }
 
     public void OnMove(InputValue action)

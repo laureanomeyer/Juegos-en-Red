@@ -90,9 +90,9 @@ public class PlayerCombat : MonoBehaviourPun
         if (actorNumber == photonView.OwnerActorNr) isOut = true;
     }
 
-    private PlayerCombat FindPlayerTarget(float range, float radius)
+    private PlayerCombat FindPlayerTarget(float radius)
     {
-        Vector3 origin = transform.position + transform.forward * (range * 0.5f);
+        Vector3 origin = transform.position;
         Collider[] hits = Physics.OverlapSphere(origin, radius, playerLayer);
 
         this.origin = origin;
@@ -112,9 +112,9 @@ public class PlayerCombat : MonoBehaviourPun
         return closest;
     }
 
-    private Component FindPushTarget(float range, float radius)
+    private Component FindPushTarget(float radius)
     {
-        Vector3 origin = transform.position + transform.forward * (range * 0.5f);
+        Vector3 origin = transform.position;
         Collider[] hits = Physics.OverlapSphere(origin, radius, playerLayer);
 
         this.origin = origin;
@@ -145,7 +145,7 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void TryPush()
     {
-        var target = FindPushTarget(pushRange, pushRadius);
+        var target = FindPushTarget(pushRadius);
         if (target == null) return;
 
         pushCooldownTimer = pushCooldown;
@@ -163,7 +163,9 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void TryStartGrab()
     {
-        var target = FindPlayerTarget(grabRange, grabRadius); // <-- usa el buscador que SOLO devuelve jugadores
+        if (isGrabbing) return;
+
+        var target = FindPlayerTarget(grabRadius); 
         if (target == null) return;
 
         currentGrabTarget = target;
@@ -198,6 +200,7 @@ public class PlayerCombat : MonoBehaviourPun
         if (!photonView.IsMine) return;
    
         movement.SetGrabPartner(grabberActorNumber);
+        Debug.Log("Recibi agarre");
     }
 
     private void OnDrawGizmos()
