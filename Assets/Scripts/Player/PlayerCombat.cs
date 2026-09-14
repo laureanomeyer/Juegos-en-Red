@@ -14,7 +14,7 @@ public class PlayerCombat : MonoBehaviourPun
     [SerializeField] private float grabCooldown = 2f;
 
     [Header("Interacción con botones (tecla E)")]
-    [SerializeField] private float interactRadius = 0.5f;
+    [SerializeField] private float interactRadius = 0.9f;
     [SerializeField] private LayerMask buttonLayer;
 
     [SerializeField] private LayerMask playerLayer;

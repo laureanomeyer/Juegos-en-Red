@@ -904,9 +904,13 @@ MonoBehaviour:
   pushCooldown: 1
   grabRadius: 2
   grabCooldown: 2
+  interactRadius: 0.9
+  buttonLayer:
+    serializedVersion: 2
+    m_Bits: 128
   playerLayer:
     serializedVersion: 2
-    m_Bits: 192
+    m_Bits: 64
 --- !u!114 &6272201610398139756
 MonoBehaviour:
   m_ObjectHideFlags: 0
