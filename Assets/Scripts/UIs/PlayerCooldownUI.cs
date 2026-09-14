@@ -12,6 +12,12 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
     private void Awake()
     {
         if (ownerView == null) ownerView = GetComponentInParent<PhotonView>();
+
+        if (!PhotonNetwork.IsMasterClient)
+        {
+            pushCooldownFill.transform.rotation = new Quaternion(-90f, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+            grabCooldownFill.transform.rotation = new Quaternion(-90f, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+        }
     }
 
     private void Update()
@@ -21,13 +27,6 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
             pushCooldownFill.fillAmount = combat.PushCooldownRatio;
             grabCooldownFill.fillAmount = combat.GrabCooldownRatio;
         }
-    }
-
-    private void LateUpdate()
-    {
-        if (Camera.main == null) return;
-
-        transform.forward = Camera.main.transform.forward;
     }
 
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
