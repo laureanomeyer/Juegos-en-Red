@@ -1,5 +1,4 @@
 using Photon.Pun;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +8,6 @@ public class RaceResultUI : MonoBehaviour
     [SerializeField] private GameObject runnerDefeatPanel;
     [SerializeField] private GameObject masterVictoryPanel;
     [SerializeField] private GameObject masterDefeatPanel;
-
-    [Header("Contador de vivos")]
-    [SerializeField] private TMP_Text aliveRunnersText;
 
     [Header("Salida")]
     [SerializeField] private Button returnToMenuButton;
@@ -33,9 +29,6 @@ public class RaceResultUI : MonoBehaviour
         RaceManager.Instance.OnRunnersWon += HandleMasterDefeat;
         RaceManager.Instance.OnRunnersLost += HandleMasterVictory;
         RaceManager.Instance.OnRunnerOut += HandlePersonalResult;
-        RaceManager.Instance.OnAliveRunnersCountChanged += HandleAliveCountChanged;
-
-        HandleAliveCountChanged(RaceManager.Instance.AliveRunnersCount);
     }
 
     private void OnDisable()
@@ -45,7 +38,6 @@ public class RaceResultUI : MonoBehaviour
         RaceManager.Instance.OnRunnersWon -= HandleMasterDefeat;
         RaceManager.Instance.OnRunnersLost -= HandleMasterVictory;
         RaceManager.Instance.OnRunnerOut -= HandlePersonalResult;
-        RaceManager.Instance.OnAliveRunnersCountChanged -= HandleAliveCountChanged;
     }
 
     private void HandleMasterDefeat()
@@ -65,12 +57,6 @@ public class RaceResultUI : MonoBehaviour
         if (actorNumber != PhotonNetwork.LocalPlayer.ActorNumber) return;
 
         (finished ? runnerVictoryPanel : runnerDefeatPanel).SetActive(true);
-    }
-
-    private void HandleAliveCountChanged(int aliveCount)
-    {
-        if (aliveRunnersText != null)
-            aliveRunnersText.text = $"Runners vivos: {aliveCount}";
     }
 
     private void HandleReturnToMenu()
