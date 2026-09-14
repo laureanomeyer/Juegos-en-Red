@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8426290236900717862}
   - component: {fileID: 5014815674680298684}
   - component: {fileID: 2483329101630400964}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Floor (3)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -210,7 +210,7 @@ GameObject:
   - component: {fileID: 1925726945899603954}
   - component: {fileID: 2505568572170950063}
   - component: {fileID: 3944376885586124083}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: Floor (4)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
