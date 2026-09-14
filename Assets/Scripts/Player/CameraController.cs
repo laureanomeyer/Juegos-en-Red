@@ -6,9 +6,11 @@ public class CameraController : MonoBehaviour
     [SerializeField] private Transform target;
 
     private bool isMaster;
+    private PhotonView view;
 
     private void Awake()
     {
+        view = GetComponent<PhotonView>();
         isMaster = PhotonNetwork.IsMasterClient;
     }
 
@@ -19,6 +21,8 @@ public class CameraController : MonoBehaviour
 
     private void HandleCameras(bool isMain)
     {
+        if (!view.IsMine) return;
+
         if (isMain) 
         {
             Vector3 targetPos = new Vector3(target.position.x, transform.position.y, transform.position.z);
