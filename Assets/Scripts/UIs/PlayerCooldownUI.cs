@@ -16,6 +16,8 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
 
     private void Update()
     {
+        if (!ownerView.IsMine) return;
+
         pushCooldownFill.fillAmount = combat.PushCooldownRatio;
         grabCooldownFill.fillAmount = combat.GrabCooldownRatio;
     }

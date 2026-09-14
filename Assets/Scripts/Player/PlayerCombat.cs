@@ -135,10 +135,10 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void TryPush()
     {
+        pushCooldownTimer = pushCooldown;
+
         var target = FindPlayerTarget(pushRadius);
         if (target == null) return;
-
-        pushCooldownTimer = pushCooldown;
 
         Vector3 direction = (target.transform.position - transform.position).normalized;
         target.photonView.RPC(nameof(ApplyKnockback), RpcTarget.All, direction, pushForce);
