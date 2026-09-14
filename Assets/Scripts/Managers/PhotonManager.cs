@@ -260,7 +260,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public void LeaveRoomIntentionally()
     {
         intentionalDisconnect = true;
-        PhotonNetwork.LeaveRoom();
+        PhotonNetwork.LeaveRoom(becomeInactive: false);
     }
 
     public override void OnDisconnected(DisconnectCause cause)
