@@ -13,7 +13,6 @@ public class RaceManager : MonoBehaviourPun
     [SerializeField] private float secondsBeforeReturnToLobby = 5f;
     [SerializeField] private string lobbySceneName = "LobbyScene";
 
-    public Action<Player> OnRunnerFinished;
     public Action OnRunnersWon;
     public Action OnRunnersLost; 
     public Action OnMasterWon;
@@ -67,13 +66,15 @@ public class RaceManager : MonoBehaviourPun
     [PunRPC]
     private void RPC_ReportFinish(int actorNumber)
     {
+        Debug.Log("report finish");
         if (raceEnded) return;
+        Debug.Log("raceEnded");
         if (actorNumber == PhotonManager.Instance.GetTrapMasterActor()) return;
+        Debug.Log("actornumber no es igual a trap master");
         if (eliminatedActors.Contains(actorNumber)) return;
+        Debug.Log("el actor no es un eliminado");
         if (!finishedActors.Add(actorNumber)) return;
-
-        if (PhotonNetwork.CurrentRoom.Players.TryGetValue(actorNumber, out Player p))
-            OnRunnerFinished?.Invoke(p);
+        Debug.Log("sin error de adeo");
 
         OnRunnerOut?.Invoke(actorNumber, true);
         NotifyAliveCount();
@@ -106,11 +107,13 @@ public class RaceManager : MonoBehaviourPun
         if (!EsElActorMasBajoPresente()) return;
 
         bool anyoneEscaped = finishedActors.Count > 0;
+        Debug.Log("anyone escaped:" + anyoneEscaped);
         EndRace(anyoneEscaped);
     }
 
     private void EndRace(bool runnersWon)
     {
+        Debug.Log("eND RACE INVOKED");
         if (raceEnded) return;
         raceEnded = true;
         photonView.RPC(nameof(RPC_EndRace), RpcTarget.All, runnersWon);
@@ -120,6 +123,7 @@ public class RaceManager : MonoBehaviourPun
     private void RPC_EndRace(bool runnersWon)
     {
         OnRaceEnded?.Invoke();
+        Debug.Log("RaCE ENDED");
 
         if (runnersWon) OnRunnersWon?.Invoke();
         else
@@ -127,14 +131,20 @@ public class RaceManager : MonoBehaviourPun
             OnRunnersLost?.Invoke();
             OnMasterWon?.Invoke();
         }
+        Debug.Log("PRIMER IF ELSE PASADO");
 
         bool esTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
         bool trapMasterPresente = PhotonManager.Instance.IsTrapMasterInRoom();
         bool debeCargarLobby = esTrapMaster || (!trapMasterPresente && EsElActorMasBajoPresente());
 
+        Debug.Log("Debe cargar Lobby:" + debeCargarLobby);
+        Debug.Log("Es trap master: " + esTrapMaster);
+        Debug.Log("Es el actor mas bajo: " + EsElActorMasBajoPresente());
+
         if (debeCargarLobby)
         {
             Invoke(nameof(LoadLobby), secondsBeforeReturnToLobby);
+            PhotonManager.Instance.TryReassignTrapMaster();
         }
     }
 

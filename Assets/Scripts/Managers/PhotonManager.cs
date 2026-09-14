@@ -211,11 +211,10 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         if (otherPlayer.ActorNumber == GetTrapMasterActor())
         {
             OnTrapMasterDisconnected?.Invoke();
-            TryReassignTrapMaster();
         }
     }
 
-    private void TryReassignTrapMaster()
+    public void TryReassignTrapMaster()
     {
         if (!PhotonNetwork.InRoom) return;
         if (PhotonNetwork.CurrentRoom.Players.Count == 0) return;
