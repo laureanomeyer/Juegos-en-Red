@@ -2146,7 +2146,7 @@ MonoBehaviour:
   origen: {x: 0, y: 0, z: 0}
   trapCooldown: 5
   safeRoomPrefab: {fileID: 9134466459534712083, guid: abdffd2671ece224993e5bbb20ac639b, type: 3}
-  insertarDespuesDeZona: 5
+  insertarDespuesDeZona: 2
   finishLinePrefab: {fileID: 9134466459534712083, guid: f0c0a77b4f424114386adbac4ea79daf, type: 3}
   startPrefab: {fileID: 9134466459534712083, guid: 068ae2db8b847fe43aff7bc8110f915b, type: 3}
   rotacionGlobalY: 0
