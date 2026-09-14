@@ -6,6 +6,7 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
 {
     [SerializeField] private PhotonView ownerView;
     [SerializeField] private PlayerCombat combat;
+    [SerializeField] private RectTransform container;
     [SerializeField] private Image pushCooldownFill;
     [SerializeField] private Image grabCooldownFill;
 
@@ -13,10 +14,11 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
     {
         if (ownerView == null) ownerView = GetComponentInParent<PhotonView>();
 
-        if (!PhotonNetwork.IsMasterClient)
+        if (!ownerView.IsMine) return;
+
+        if (!PhotonManager.Instance.IsLocalPlayerTrapMaster())
         {
-            pushCooldownFill.transform.rotation = new Quaternion(-90f, transform.rotation.y, transform.rotation.z, transform.rotation.w);
-            grabCooldownFill.transform.rotation = new Quaternion(-90f, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+            container.transform.localRotation = Quaternion.Euler(-90f, -90, 0);
         }
     }
 
