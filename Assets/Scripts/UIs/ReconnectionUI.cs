@@ -46,8 +46,7 @@ public class ReconnectionUI : MonoBehaviour
         }
     }
 
-    // Se dispara si el intento de reconexión falla del todo (ClientTimeout/ServerTimeout
-    // agotados, o cualquier otra causa no transitoria) y PhotonManager ya te mandó al menú.
+    // Se dispara si el intento de reconexión falla del todo (ClientTimeout/ServerTimeout agotados, o cualquier otra causa no transitoria) y PhotonManager ya te mandó al menú.
     private void HandleGaveUp()
     {
         if (reconnectingOverlay != null)

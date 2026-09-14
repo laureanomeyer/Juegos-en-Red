@@ -21,7 +21,6 @@ public class ZoneLevelBuilder : MonoBehaviourPun
     {
         if (!PhotonNetwork.CurrentRoom.CustomProperties.TryGetValue(PhotonManager.ZONE_SEQ_KEY, out object raw))
         {
-            Debug.LogError("No se encontró la secuencia de zonas en las Custom Properties de la sala.");
             return;
         }
 
@@ -49,17 +48,13 @@ public class ZoneLevelBuilder : MonoBehaviourPun
 
             int index = secuencia[i];
             cursor = InstanciarPieza(zonePrefabs[index], cursor, out GameObject zonaGO);
-
-            // Cada zona puede traer VARIOS botones, cada uno con su propia
-            // trampa asignada a mano en el Inspector (ButtonBehavior.Trap).
-            // Ya no asumimos "una trampa y un botón por zona".
             var botones = zonaGO.GetComponentsInChildren<ButtonBehavior>(true);
+
             foreach (var boton in botones)
             {
                 ITrap trapDelBoton = boton.Trap;
                 if (trapDelBoton == null)
                 {
-                    Debug.LogError($"[Builder] El botón '{boton.name}' en '{zonaGO.name}' no tiene ninguna trampa asignada en 'Trap Behaviour'.");
                     continue;
                 }
 
@@ -76,8 +71,6 @@ public class ZoneLevelBuilder : MonoBehaviourPun
         nextAvailableTime = new float[trampas.Count];
     }
 
-    // Instancia 'prefab' de forma que su Head caiga en 'cursorPos', y devuelve
-    // la posición mundial de su Tail (el cursor para la próxima pieza).
     private Vector3 InstanciarPieza(GameObject prefab, Vector3 cursorPos, out GameObject instancia)
     {
         Quaternion offset = Quaternion.Euler(0f, rotacionGlobalY, 0f);
@@ -86,7 +79,6 @@ public class ZoneLevelBuilder : MonoBehaviourPun
 
         if (endpoints == null)
         {
-            Debug.LogError($"'{prefab.name}' no tiene RoomEndpoints (Head/Tail) asignado.");
             instancia = Instantiate(prefab, cursorPos, rot, transform);
             return cursorPos;
         }
@@ -100,7 +92,6 @@ public class ZoneLevelBuilder : MonoBehaviourPun
     public bool CanTriggerTrap(int zoneIndex)
     {
         bool result = zoneIndex >= 0 && zoneIndex < trampas.Count && Time.time >= nextAvailableTime[zoneIndex];
-        Debug.Log($"[Builder] CanTrigger check: zoneIndex={zoneIndex}, trampas.Count={trampas.Count}, nextAvailableTime.Length={(nextAvailableTime?.Length ?? -1)}");
         return result;
     }
 
@@ -108,7 +99,6 @@ public class ZoneLevelBuilder : MonoBehaviourPun
     {
         if (!PhotonManager.Instance.IsLocalPlayerTrapMaster())
         {
-            Debug.LogWarning("[Builder] Intento de activar trampa por alguien que no es el Trampero.");
             return;
         }
 
@@ -125,7 +115,6 @@ public class ZoneLevelBuilder : MonoBehaviourPun
 
         if (info.Sender == null || info.Sender.ActorNumber != trapMasterActor)
         {
-            Debug.LogWarning($"[Builder] RPC ignorado: lo mandó ActorNumber={info.Sender?.ActorNumber}, pero el Trampero es {trapMasterActor}.");
             return;
         }
 

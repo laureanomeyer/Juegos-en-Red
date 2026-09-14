@@ -10,7 +10,7 @@ public class RaceResultUI : MonoBehaviour
     [SerializeField] private GameObject masterVictoryPanel;
     [SerializeField] private GameObject masterDefeatPanel;
 
-    [Header("Contador de vivos (solo corredores)")]
+    [Header("Contador de vivos")]
     [SerializeField] private TMP_Text aliveRunnersText;
 
     [Header("Salida")]
@@ -35,7 +35,7 @@ public class RaceResultUI : MonoBehaviour
         RaceManager.Instance.OnRunnerOut += HandlePersonalResult;
         RaceManager.Instance.OnAliveRunnersCountChanged += HandleAliveCountChanged;
 
-        HandleAliveCountChanged(RaceManager.Instance.AliveRunnersCount); // inicializa con el valor actual, sin esperar al próximo evento
+        HandleAliveCountChanged(RaceManager.Instance.AliveRunnersCount);
     }
 
     private void OnDisable()
@@ -48,7 +48,6 @@ public class RaceResultUI : MonoBehaviour
         RaceManager.Instance.OnAliveRunnersCountChanged -= HandleAliveCountChanged;
     }
 
-    // Panel del MASTER únicamente — el resultado general de la ronda.
     private void HandleMasterDefeat()
     {
         if (PhotonManager.Instance.IsLocalPlayerTrapMaster())
@@ -61,8 +60,6 @@ public class RaceResultUI : MonoBehaviour
             masterVictoryPanel.SetActive(true);
     }
 
-    // Panel PERSONAL del corredor — aparece apenas SE RESUELVE SU PROPIO destino,
-    // sin esperar a que termine la ronda para el resto.
     private void HandlePersonalResult(int actorNumber, bool finished)
     {
         if (actorNumber != PhotonNetwork.LocalPlayer.ActorNumber) return;

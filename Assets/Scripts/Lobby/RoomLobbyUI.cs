@@ -74,7 +74,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
 
     private void UpdateLobbyUI()
     {
-        // Si ya arrancó la cuenta regresiva, no redibujamos botones
         if (isStarting) return;
 
         foreach (var entry in spawnedEntries)
@@ -86,25 +85,18 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
         bool isTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
         bool trapMasterPresente = PhotonManager.Instance.IsTrapMasterInRoom();
         int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
-
-        // Contamos activos que NO sean el Trap Master, para saber si hay al menos un Runner
         int runnerCount = 0;
+
         foreach (var player in PhotonNetwork.PlayerList)
         {
             if (player.IsInactive) continue;
             if (player.ActorNumber == trapMasterActor) continue;
             runnerCount++;
         }
-
-        // Solo el Trap Master ve el botón de empezar, y solo se habilita si
-        // él mismo sigue en la sala Y hay al menos un Runner esperando.
         startButton.gameObject.SetActive(isTrapMaster);
         startButton.interactable = isTrapMaster && trapMasterPresente && runnerCount >= 1;
-
-        // Ahora cualquiera puede salir del lobby, incluido el Trap Master.
         leaveButton.interactable = true;
 
-        // Listado de jugadores
         foreach (var player in PhotonNetwork.PlayerList)
         {
             if (player.IsInactive) continue;
@@ -124,7 +116,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
         if (isStarting) return;
         if (!PhotonManager.Instance.IsLocalPlayerTrapMaster()) return;
 
-        // Chequeo defensivo por si un Runner se fue justo antes del click.
         int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
         int runnerCount = 0;
         foreach (var player in PhotonNetwork.PlayerList)
@@ -135,10 +126,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
         }
         if (runnerCount < 1) return;
 
-        // 1. Cerramos la sala inmediatamente para que nadie más se conecte
         PhotonNetwork.CurrentRoom.IsOpen = false;
-
-        // 2. Notificamos a todos mediante RPC que arranca la cuenta regresiva
         photonView.RPC(nameof(RPC_StartCountdown), RpcTarget.All);
     }
 
@@ -146,8 +134,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
     private void RPC_StartCountdown()
     {
         isStarting = true;
-
-        // Bloqueamos los botones para todos
         startButton.interactable = false;
         leaveButton.interactable = false;
 
@@ -178,9 +164,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             countdownText.text = "¡Cargando!";
         }
 
-        // Solo el Master Client de Photon ejecuta el cambio de escena — es una
-        // decisión de autoridad de RED, no de rol de gameplay, así que sigue
-        // usando IsMasterClient a propósito.
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.LoadLevel(gameplaySceneName);

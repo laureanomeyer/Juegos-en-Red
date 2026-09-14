@@ -29,6 +29,8 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
     private bool isBeingGrabbed;
     private bool isGrabbingSomeone;
+    private Vector3 windVelocity = Vector3.zero;
+    private float windDecay = 20f;
 
     private Vector3 networkPosition;
     private Quaternion networkRotation;
@@ -130,9 +132,10 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         float speedMultiplier = GetGrabMultiplier();
         Vector3 direction = GetCameraRelativeDirection();
 
-        Vector3 targetVel = direction * moveSpeed * speedMultiplier;
+        Vector3 targetVel = direction * moveSpeed * speedMultiplier + windVelocity;
         targetVel.y = rb.linearVelocity.y;
         rb.linearVelocity = targetVel;
+        windVelocity = Vector3.MoveTowards(windVelocity, Vector3.zero, windDecay * Time.fixedDeltaTime);
 
         if (jumpRequested)
         {
@@ -192,6 +195,12 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         knockdownTimer = knockdownDuration;
         rb.linearVelocity = Vector3.zero;
         rb.AddForce(direction * force, ForceMode.Impulse);
+    }
+
+    public void ApplyWind(Vector3 direction, float speed, float decay = 20f)
+    {
+        windVelocity = direction.normalized * speed;
+        windDecay = decay;
     }
 
     public void SetAttemptingGrab(bool value)

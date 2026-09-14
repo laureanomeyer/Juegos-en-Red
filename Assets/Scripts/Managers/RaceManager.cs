@@ -14,19 +14,12 @@ public class RaceManager : MonoBehaviourPun
     [SerializeField] private string lobbySceneName = "LobbyScene";
 
     public Action<Player> OnRunnerFinished;
-    public Action OnRunnersWon;   // al menos uno escapó (para la UI del master)
-    public Action OnRunnersLost;  // todos murieron (para la UI del master)
+    public Action OnRunnersWon;
+    public Action OnRunnersLost; 
     public Action OnMasterWon;
-
     public System.Action OnRaceEnded;
-
-    // Se dispara para CADA corredor individualmente, apenas se resuelve su destino.
-    // actorNumber = quién, finished = true si llegó a la meta, false si murió.
     public Action<int, bool> OnRunnerOut;
-
-    // Se dispara cada vez que cambia la cantidad de corredores todavía en carrera.
     public Action<int> OnAliveRunnersCountChanged;
-
     private readonly HashSet<int> finishedActors = new HashSet<int>();
     private readonly HashSet<int> eliminatedActors = new HashSet<int>();
     private int totalRunners;
@@ -63,7 +56,7 @@ public class RaceManager : MonoBehaviourPun
     {
         if (raceEnded) return;
         if (actorNumber == PhotonManager.Instance.GetTrapMasterActor()) return;
-        if (eliminatedActors.Contains(actorNumber)) return; // ya estaba muerto, no puede "llegar"
+        if (eliminatedActors.Contains(actorNumber)) return;
         if (!finishedActors.Add(actorNumber)) return;
 
         if (PhotonNetwork.CurrentRoom.Players.TryGetValue(actorNumber, out Player p))
@@ -78,7 +71,7 @@ public class RaceManager : MonoBehaviourPun
     private void RPC_ReportEliminated(int actorNumber)
     {
         if (raceEnded) return;
-        if (finishedActors.Contains(actorNumber)) return; // ya había llegado, está a salvo
+        if (finishedActors.Contains(actorNumber)) return; 
         if (!eliminatedActors.Add(actorNumber)) return;
 
         OnRunnerOut?.Invoke(actorNumber, false);
@@ -107,7 +100,6 @@ public class RaceManager : MonoBehaviourPun
     {
         if (raceEnded) return;
         raceEnded = true;
-
         photonView.RPC(nameof(RPC_EndRace), RpcTarget.All, runnersWon);
     }
 
@@ -125,14 +117,7 @@ public class RaceManager : MonoBehaviourPun
 
         bool esTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
         bool trapMasterPresente = PhotonManager.Instance.IsTrapMasterInRoom();
-
-        // Si el Trap Master ya abandonó la sala, la Custom Property nunca se
-        // actualiza sola — así que nadie volvería a cumplir esTrapMaster nunca
-        // más. En ese caso, el actor de menor ActorNumber presente toma la
-        // responsabilidad de volver al lobby.
         bool debeCargarLobby = esTrapMaster || (!trapMasterPresente && EsElActorMasBajoPresente());
-
-        Debug.Log($"[RaceManager] RPC_EndRace | LocalActor={PhotonNetwork.LocalPlayer.ActorNumber} | TrapMasterActor={PhotonManager.Instance.GetTrapMasterActor()} | ¿TrapMasterPresente?={trapMasterPresente} | ¿EsTrapMaster?={esTrapMaster} | ¿VaAAgendarLoadLobby?={debeCargarLobby}");
 
         if (debeCargarLobby)
         {

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Photon.Pun;
 using UnityEngine;
 
@@ -7,20 +6,16 @@ public class FanTrap : MonoBehaviour, ITrap
 {
     [Header("Debug")]
     [SerializeField] private bool debugActivar;
-
     [Header("Ventilador")]
-    [SerializeField] private GameObject fanVisual; // mesh / partículas / animación a prender-apagar (opcional)
-    [SerializeField] private float activeDuration = 3f; // cuánto queda encendido tras activarse
-
+    [SerializeField] private GameObject fanVisual; 
+    [SerializeField] private float activeDuration = 3f; 
     [Header("Empuje")]
-    [SerializeField] private float pushForce = 12f;
-    [SerializeField] private float pushInterval = 0.5f; // cooldown por jugador mientras sigue parado en la zona
-    [SerializeField] private Transform pushDirectionSource; // opcional; si es null, usa este transform
+    [SerializeField] private float pushForce = 6f;
+    [SerializeField] private float windFadeSpeed = 20f;
+    [SerializeField] private Transform pushDirectionSource;
 
     private bool isBlowing;
     private Coroutine activeRoutine;
-
-    private readonly Dictionary<PlayerMovement, float> lastPushTime = new Dictionary<PlayerMovement, float>();
 
     public void Activate()
     {
@@ -52,22 +47,16 @@ public class FanTrap : MonoBehaviour, ITrap
         if (movement == null) return;
 
         PhotonView view = movement.GetComponent<PhotonView>();
-        if (view == null || !view.IsMine) return; // solo el dueño de ESE jugador reporta su propio empuje
-
-        if (lastPushTime.TryGetValue(movement, out float last) && Time.time - last < pushInterval)
-            return;
-
-        lastPushTime[movement] = Time.time;
-
+        if (view == null || !view.IsMine) return; 
         Vector3 direction = (pushDirectionSource != null ? pushDirectionSource.forward : transform.forward).normalized;
-        view.RPC(nameof(PlayerMovement.RPC_ApplyPush), RpcTarget.All, direction, pushForce);
+        movement.ApplyWind(direction, pushForce, windFadeSpeed);
     }
 
     private void OnValidate()
     {
         if (debugActivar)
         {
-            debugActivar = false; // se destilda solo, para poder volver a probar
+            debugActivar = false; 
             if (Application.isPlaying) Activate();
         }
     }

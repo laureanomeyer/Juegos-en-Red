@@ -3,19 +3,17 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Vive sobre el popup de "nombre + contraseña" que aparece al elegir una sala
-// de la lista. El campo de contraseña se prende o apaga solo según la sala.
 public class JoinPopupPanelUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text roomNameText;
     [SerializeField] private TMP_InputField nicknameInput;
-    [SerializeField] private GameObject passwordContainer; // agrupa label + input de contraseña
+    [SerializeField] private GameObject passwordContainer; 
     [SerializeField] private TMP_InputField passwordInput;
     [SerializeField] private Button confirmButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private TMP_Text statusText;
 
-    public event Action<string, string> OnJoinConfirmed; // nickname, password
+    public event Action<string, string> OnJoinConfirmed; 
     public event Action OnCancelRequested;
 
     private bool currentHasPassword;

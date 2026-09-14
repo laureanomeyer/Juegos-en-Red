@@ -3,8 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-// Vive sobre el panel de "crear sala". Solo conoce sus propios inputs/botones.
-// Contraseña vacía = sala pública (eso lo decide PhotonManager, no este script).
 public class CreateRoomPanelUI : MonoBehaviour
 {
     [SerializeField] private TMP_InputField roomNameInput;

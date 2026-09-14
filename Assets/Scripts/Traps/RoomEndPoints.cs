@@ -1,8 +1,5 @@
 using UnityEngine;
 
-// Marca por dónde "entra" (Head) y por dónde "sale" (Tail) esta pieza de nivel,
-// para que ZoneLevelBuilder pueda encadenarlas con precisión sin depender
-// de un tamaño fijo.
 public class RoomEndpoints : MonoBehaviour
 {
     [SerializeField] private Transform head;

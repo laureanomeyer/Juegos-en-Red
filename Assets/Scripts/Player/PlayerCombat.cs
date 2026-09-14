@@ -16,7 +16,6 @@ public class PlayerCombat : MonoBehaviourPun
     [Header("Interacción con botones (tecla E)")]
     [SerializeField] private float interactRadius = 0.9f;
     [SerializeField] private LayerMask buttonLayer;
-
     [SerializeField] private LayerMask playerLayer;
 
     Vector3 origin;

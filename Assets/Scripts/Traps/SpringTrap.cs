@@ -6,25 +6,19 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class SpringTrap : MonoBehaviour, ITrap
 {
-    [Header("Debug")]
-    [SerializeField] private bool debugActivar;
-
     [Header("Movimiento del resorte")]
-    [Tooltip("Desplazamiento LOCAL (relativo a la posición de reposo) cuando el resorte está estirado.")]
     [SerializeField] private Vector3 extendedLocalOffset = new Vector3(0f, 0f, 1f);
     [SerializeField] private float extendDuration = 0.12f;
-    [Tooltip("Cuánto se queda estirado antes de empezar a volver.")]
     [SerializeField] private float holdDuration = 0.2f;
     [SerializeField] private float retractDuration = 0.3f;
 
     [Header("Empuje")]
-    [Tooltip("Opcional. Si lo dejás vacío, usa el forward de este mismo objeto.")]
     [SerializeField] private Transform pushDirectionSource;
     [SerializeField] private float pushForce = 20f;
     [SerializeField] private float hitCooldownPerTarget = 0.5f;
 
     private Vector3 restLocalPos;
-    private bool isExtended; // true mientras el resorte está estirado (empuja al tocarlo)
+    private bool isExtended;
     private Coroutine moveRoutine;
 
     private readonly Dictionary<PlayerMovement, float> lastHitTime = new Dictionary<PlayerMovement, float>();
@@ -97,10 +91,5 @@ public class SpringTrap : MonoBehaviour, ITrap
 
     private void OnValidate()
     {
-        if (debugActivar)
-        {
-            debugActivar = false; // se destilda solo, para poder volver a probar
-            if (Application.isPlaying) Activate();
-        }
     }
 }

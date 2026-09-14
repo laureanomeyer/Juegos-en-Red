@@ -24,23 +24,16 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public Action OnMasterSwiched;
     public Action OnTrapMasterDisconnected;
     public Action OnTrapMasterReassigned;
-
     public Action OnReconnecting;
     public Action OnReconnected;
-
 
     private const string PASSWORD_KEY = "pwd";
     private const string HAS_PASSWORD_KEY = "hasPwd";
     private const string LOBBY_SCENE_NAME = "LobbyScene";
     private const string MENU_SCENE_NAME = "CreateRoomScene";
-
     public const string TRAP_MASTER_ACTOR_KEY = "trapMasterActor";
-
     private Dictionary<string, RoomInfo> cachedRoomList = new Dictionary<string, RoomInfo>();
     private bool intentionalDisconnect;
-
-    // Acceso de solo lectura a la lista de salas cacheada, para que la UI pueda
-    // dibujar el listado apenas se habilita, sin esperar al próximo OnRoomListUpdate.
     public IReadOnlyDictionary<string, RoomInfo> CachedRoomList => cachedRoomList;
 
     [Header("Configuración de Zonas (Deathrun)")]
@@ -133,9 +126,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.JoinRoom(roomName);
     }
-
-    // Le dice a la UI si una sala en particular tiene contraseña, sin exponer
-    // las claves internas de las CustomProperties fuera de este manager.
     public bool RoomHasPassword(RoomInfo info)
     {
         return info != null && info.CustomProperties.TryGetValue(HAS_PASSWORD_KEY, out var hp) && (bool)hp;
@@ -229,9 +219,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.InRoom) return;
         if (PhotonNetwork.CurrentRoom.Players.Count == 0) return;
-
-        // Evitamos que todos los clientes escriban la property al mismo tiempo:
-        // solo el de menor ActorNumber presente lo hace.
         int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
         foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
         {
@@ -282,10 +269,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     }
     public override void OnCreatedRoom()
     {
-        // Se dispara solo del lado de quien creó la sala, ya con un ActorNumber válido.
+        
         var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, PhotonNetwork.LocalPlayer.ActorNumber } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
-
-        Debug.Log($"[PhotonManager] Sala creada. Trap master seteado como ActorNumber={PhotonNetwork.LocalPlayer.ActorNumber}");
     }
 }

@@ -3,18 +3,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-// Controla una fila de la lista de salas disponibles: nombre + "jugadores/max".
-// Se deshabilita sola si la sala está llena o cerrada (partida ya en curso).
 public class RoomListEntryUI : MonoBehaviour
 {
     [SerializeField] private TMP_Text roomNameText;
     [SerializeField] private TMP_Text playerCountText;
     [SerializeField] private Button selectButton;
-    [SerializeField] private GameObject lockIcon; // se prende si la sala tiene contraseña
-    [SerializeField] private TMP_Text stateText;  // opcional: "Llena" / "En curso"
+    [SerializeField] private GameObject lockIcon;
+    [SerializeField] private TMP_Text stateText;  
 
-    // Avisa con el nombre de la sala Y si tiene contraseña, para que el popup de unión
-    // sepa si tiene que pedir clave o no.
+    // Avisa con el nombre de la sala Y si tiene contraseña, para que el popup de unión sepa si tiene que pedir clave o no.
     public void Setup(string roomName, int playerCount, int maxPlayers, bool hasPassword, bool isOpen, Action<string, bool> onSelected)
     {
         if (roomNameText != null) roomNameText.text = roomName;
