@@ -1,18 +1,21 @@
 using Photon.Pun;
-using System.Runtime.CompilerServices;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.UI.Image;
 
 public class PlayerCombat : MonoBehaviourPun
 {
+    [Header("Empuje (jugador a jugador)")]
     [SerializeField] private float pushRadius = 2f;
     [SerializeField] private float pushForce = 8f;
     [SerializeField] private float pushCooldown = 1f;
 
+    [Header("Agarre")]
     [SerializeField] private float grabRadius = 2f;
     [SerializeField] private float grabCooldown = 2f;
+
+    [Header("Interacción con botones (tecla E)")]
+    [SerializeField] private float interactRadius = 0.5f;
+    [SerializeField] private LayerMask buttonLayer;
 
     [SerializeField] private LayerMask playerLayer;
 
@@ -38,7 +41,6 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void Update()
     {
-
         if (!photonView.IsMine || isOut || raceFullyEnded) return;
 
         if (pushCooldownTimer > 0f) pushCooldownTimer -= Time.deltaTime;
@@ -62,6 +64,11 @@ public class PlayerCombat : MonoBehaviourPun
         if (Mouse.current.rightButton.wasReleasedThisFrame)
         {
             StopGrabbing();
+        }
+
+        if (Keyboard.current.eKey.wasPressedThisFrame)
+        {
+            TryInteractButton();
         }
     }
 
@@ -104,53 +111,45 @@ public class PlayerCombat : MonoBehaviourPun
         return closest;
     }
 
-    private Component FindPushTarget(float radius)
+    private ButtonBehavior FindButtonTarget(float radius)
     {
         Vector3 origin = transform.position;
-        Collider[] hits = Physics.OverlapSphere(origin, radius, playerLayer);
+        Collider[] hits = Physics.OverlapSphere(origin, radius, buttonLayer);
 
         this.origin = origin;
         this.radius = radius;
 
-        Component closest = null;
+        ButtonBehavior closest = null;
         float closestDist = float.MaxValue;
 
         foreach (var hit in hits)
         {
-            var combat = hit.GetComponentInParent<PlayerCombat>();
-            if (combat != null && combat != this)
-            {
-                float dist = Vector3.Distance(transform.position, combat.transform.position);
-                if (dist < closestDist) { closestDist = dist; closest = combat; }
-                continue;
-            }
-
             var boton = hit.GetComponentInParent<ButtonBehavior>();
-            if (boton != null)
-            {
-                float dist = Vector3.Distance(transform.position, boton.transform.position);
-                if (dist < closestDist) { closestDist = dist; closest = boton; }
-            }
+            if (boton == null) continue;
+
+            float dist = Vector3.Distance(transform.position, boton.transform.position);
+            if (dist < closestDist) { closestDist = dist; closest = boton; }
         }
         return closest;
     }
 
     private void TryPush()
     {
-        var target = FindPushTarget(pushRadius);
+        var target = FindPlayerTarget(pushRadius);
         if (target == null) return;
 
         pushCooldownTimer = pushCooldown;
 
-        if (target is PlayerCombat playerTarget)
-        {
-            Vector3 direction = (playerTarget.transform.position - transform.position).normalized;
-            playerTarget.photonView.RPC(nameof(ApplyKnockback), RpcTarget.All, direction, pushForce);
-        }
-        else if (target is ButtonBehavior boton)
-        {
-            boton.Interact(this);
-        }
+        Vector3 direction = (target.transform.position - transform.position).normalized;
+        target.photonView.RPC(nameof(ApplyKnockback), RpcTarget.All, direction, pushForce);
+    }
+
+    private void TryInteractButton()
+    {
+        var boton = FindButtonTarget(interactRadius);
+        if (boton == null) return;
+
+        boton.Interact(this);
     }
 
     private void StartGrabbing()
