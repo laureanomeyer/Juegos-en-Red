@@ -4,6 +4,7 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private Transform target;
+    [SerializeField] private PhotonView view;
 
     private bool isMaster;
 
@@ -14,11 +15,14 @@ public class CameraController : MonoBehaviour
 
     private void Update()
     {
+        if (!view.IsMine) return;
         HandleCameras(isMaster);
     }
 
     private void HandleCameras(bool isMain)
     {
+        if (!view.IsMine) return;
+
         if (isMain) 
         {
             Vector3 targetPos = new Vector3(target.position.x, transform.position.y, transform.position.z);
