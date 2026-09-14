@@ -22,11 +22,9 @@ public class PlayerCombat : MonoBehaviourPun
     private PlayerMovement movement;
     private float pushCooldownTimer;
     private float grabCooldownTimer;
-    private bool isGrabbing;
     private bool isHoldingGrabInput;
     private PlayerCombat currentGrabTarget;
 
-    private bool raceEnded;
     private bool isOut;
     private bool raceFullyEnded;
 
