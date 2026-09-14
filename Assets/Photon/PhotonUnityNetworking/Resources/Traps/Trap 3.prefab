@@ -273,7 +273,7 @@ GameObject:
   - component: {fileID: 5507564738372985387}
   - component: {fileID: 8036423863566265348}
   - component: {fileID: 7954952511243660788}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SueloRoto
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -820,7 +820,7 @@ GameObject:
   - component: {fileID: 1243438802045163630}
   - component: {fileID: 1424122408772952427}
   - component: {fileID: 1036284813576577926}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Floor (5)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
