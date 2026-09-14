@@ -56,6 +56,16 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
     }
 
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
     public override void OnConnectedToMaster()
     {
         Debug.Log("Conectado al Master Server de Photon");
@@ -273,4 +283,16 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, PhotonNetwork.LocalPlayer.ActorNumber } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != LOBBY_SCENE_NAME) return;
+        if (!PhotonNetwork.InRoom) return;
+
+        if (!IsTrapMasterInRoom())
+        {
+            TryReassignTrapMaster();
+        }
+    }
+
 }
