@@ -13,12 +13,10 @@ public class PlayerCooldownUI : MonoBehaviour, IPunObservable
     {
         if (ownerView == null) ownerView = GetComponentInParent<PhotonView>();
 
-        if (!ownerView.IsMine) return;
-
-        if (!PhotonManager.Instance.IsLocalPlayerTrapMaster())
+        if (!PhotonNetwork.IsMasterClient)
         {
-            pushCooldownFill.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
-            grabCooldownFill.transform.localRotation = Quaternion.Euler(-90f, 0f, 0f);
+            pushCooldownFill.transform.rotation = new Quaternion(-90f, transform.rotation.y, transform.rotation.z, transform.rotation.w);
+            grabCooldownFill.transform.rotation = new Quaternion(-90f, transform.rotation.y, transform.rotation.z, transform.rotation.w);
         }
     }
 
