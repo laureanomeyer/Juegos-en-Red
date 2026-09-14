@@ -551,7 +551,7 @@ GameObject:
   - component: {fileID: 6246279847041365453}
   - component: {fileID: 8227628915603332784}
   - component: {fileID: 412028526780245541}
-  - component: {fileID: 1273444094303391328}
+  - component: {fileID: 628026294487569984}
   m_Layer: 7
   m_Name: Button (1)
   m_TagString: Untagged
@@ -665,7 +665,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0daf7dbddcfe9704597f82499fbb2012, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ButtonBehavior
---- !u!54 &1273444094303391328
+  trapBehaviour: {fileID: 4544995426891622315}
+--- !u!54 &628026294487569984
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1059,6 +1060,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
       insertIndex: -1
       addedObject: {fileID: 6061404549141438194}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 265464696580942324}
   m_SourcePrefab: {fileID: 100100000, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
 --- !u!4 &458297087881732274 stripped
 Transform:
@@ -1091,6 +1095,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.006, y: 0.0059999996, z: 0.0018506154}
   m_Center: {x: 0, y: -3.2873539e-18, z: 0.0009253077}
+--- !u!114 &265464696580942324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 943471589410290184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03e160e54e5b4041bd98f6e85661fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalSpikes
 --- !u!1001 &931912996952303837
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1162,6 +1178,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
       insertIndex: -1
       addedObject: {fileID: 7134787227879099806}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 758928334964020172}
   m_SourcePrefab: {fileID: 100100000, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
 --- !u!1 &13431904844141964 stripped
 GameObject:
@@ -1189,6 +1208,18 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.006, y: 0.0059999996, z: 0.0018506154}
   m_Center: {x: 0, y: -3.2873539e-18, z: 0.0009253077}
+--- !u!114 &758928334964020172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 13431904844141964}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03e160e54e5b4041bd98f6e85661fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalSpikes
 --- !u!4 &820896015179845430 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
@@ -1385,6 +1416,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8049928480923292454}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8719615432427475035}
   m_SourcePrefab: {fileID: 100100000, guid: 4d0b001551180034ba7262b4fe2f2383, type: 3}
 --- !u!4 &8419408006112532696 stripped
 Transform:
@@ -1417,3 +1451,15 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.006, y: 0.0059999996, z: 0.0018506154}
   m_Center: {x: 0, y: -3.2873539e-18, z: 0.0009253077}
+--- !u!114 &8719615432427475035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195345853317546594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d03e160e54e5b4041bd98f6e85661fc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NormalSpikes
