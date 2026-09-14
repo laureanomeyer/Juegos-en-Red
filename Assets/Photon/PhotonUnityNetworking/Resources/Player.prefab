@@ -883,9 +883,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   moveSpeed: 30
   knockdownDuration: 1
-  grabSlowRadius: 2
-  grabMaxMultiplier: 0.5
-  grabMinMultiplier: 0.2
+  grabSlowMultiplier: 0.1
   interpolationSpeed: 15
   mainPlayerCamerTransform: {fileID: 7040271850960795054}
   runnerCameraTransform: {fileID: 7115942707723663035}
@@ -901,11 +899,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ff61401ec218294f9557d03fdffb992, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerCombat
-  pushRange: 2
   pushRadius: 2
   pushForce: 25
   pushCooldown: 1
-  grabRange: 2
   grabRadius: 2
   grabCooldown: 2
   playerLayer:
