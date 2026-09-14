@@ -54,13 +54,13 @@ public class PlayerCombat : MonoBehaviourPun
 
         if (Mouse.current.rightButton.wasPressedThisFrame && grabCooldownTimer <= 0)
         {
-            TryStartGrab();
-            Debug.Log("agarre");
+            movement.SetAttemptingGrab(true);
+            TryStartGrab();                   
         }
-
-        else if (Mouse.current.rightButton.wasReleasedThisFrame && isGrabbing)
+        else if (Mouse.current.rightButton.wasReleasedThisFrame)
         {
-            EndGrab();
+            movement.SetAttemptingGrab(false);
+            if (isGrabbing) EndGrab();
         }
 
         if (isGrabbing && currentGrabTarget != null)
@@ -165,8 +165,12 @@ public class PlayerCombat : MonoBehaviourPun
     {
         if (isGrabbing) return;
 
-        var target = FindPlayerTarget(grabRadius); 
-        if (target == null) return;
+        var target = FindPlayerTarget(grabRadius);
+        if (target == null)
+        {
+            grabCooldownTimer = grabCooldown;
+            return;
+        }
 
         currentGrabTarget = target;
         isGrabbing = true;
