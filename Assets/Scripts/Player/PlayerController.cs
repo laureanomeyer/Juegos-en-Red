@@ -67,4 +67,9 @@ public class PlayerController : MonoBehaviourPun
         if (!photonView.IsMine) return;
         RaceManager.Instance.ReportEliminated(photonView.OwnerActorNr);
     }
+
+    private void OnPlayerDisconnected()
+    {
+        
+    }
 }

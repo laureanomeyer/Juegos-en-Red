@@ -35,7 +35,11 @@ public class RaceManager : MonoBehaviourPun
     private void RPC_ReportFinish(int actorNumber)
     {
         OnRunnerOut?.Invoke(actorNumber, true);
+        if(actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
+        {
+
         EndRace(runnersWon: true);
+        }
     }
 
     [PunRPC]
@@ -69,9 +73,16 @@ public class RaceManager : MonoBehaviourPun
 
     private void LoadLobby()
     {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == lobbySceneName) return;
+
+        if (PhotonManager.Instance.IsLocalPlayerTrapMaster())
+        {
+            PhotonNetwork.CurrentRoom.IsOpen = true;
+        }
+
         if (!PhotonNetwork.IsMasterClient) return;
 
-        PhotonNetwork.CurrentRoom.IsOpen = true;
         PhotonNetwork.LoadLevel(lobbySceneName);
+ 
     }
 }

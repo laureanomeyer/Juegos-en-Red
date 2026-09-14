@@ -751,7 +751,6 @@ MonoBehaviour:
   runnerDefeatPanel: {fileID: 1507796325}
   masterVictoryPanel: {fileID: 1938901677}
   masterDefeatPanel: {fileID: 1043128754}
-  aliveRunnersText: {fileID: 227552026}
   returnToMenuButton: {fileID: 1785095208}
 --- !u!4 &428013682
 Transform:

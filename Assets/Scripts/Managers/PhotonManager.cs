@@ -113,9 +113,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         return PhotonNetwork.CurrentRoom.Players.ContainsKey(GetTrapMasterActor());
     }
 
-    // Regla "en vivo" para el LOBBY, independiente de la Custom Property:
-    // el candidato a Trap Master es siempre el de menor ActorNumber presente
-    // en este instante. No se escribe nada hasta que efectivamente arranca la partida.
     public int GetLowestActorNumberPresent()
     {
         int lowest = int.MaxValue;
@@ -132,9 +129,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         return PhotonNetwork.LocalPlayer.ActorNumber == GetLowestActorNumberPresent();
     }
 
-    // Se llama UNA sola vez, desde RoomLobbyUI, en el instante exacto en que
-    // arranca la partida. A partir de acá el valor queda fijo para toda la
-    // carrera — nadie más lo vuelve a tocar, se vaya quien se vaya.
     public void AssignTrapMasterForMatchStart()
     {
         int elegido = GetLowestActorNumberPresent();
@@ -253,8 +247,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         base.OnPlayerLeftRoom(otherPlayer);
         OnPlayerLeft?.Invoke(otherPlayer);
 
-        // Solo avisamos (para el cartel de "vía libre" durante la carrera).
-        // Ya NO reasignamos acá — el rol queda fijo hasta la próxima partida.
+
         if (otherPlayer.ActorNumber == GetTrapMasterActor())
         {
             OnTrapMasterDisconnected?.Invoke();
@@ -301,8 +294,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnCreatedRoom()
     {
-        // Valor inicial (el creador), que de todos modos se sobrescribe con
-        // AssignTrapMasterForMatchStart() apenas arranque la primera partida.
         var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, PhotonNetwork.LocalPlayer.ActorNumber } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
