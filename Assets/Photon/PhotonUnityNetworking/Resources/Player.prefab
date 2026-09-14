@@ -263,6 +263,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   target: {fileID: 1773924934447272932}
+  view: {fileID: 6821988959321522223}
 --- !u!1 &4086208515560041352
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,6 +449,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
   target: {fileID: 1773924934447272932}
+  view: {fileID: 6821988959321522223}
 --- !u!1 &6588426376983541057
 GameObject:
   m_ObjectHideFlags: 0

@@ -4,18 +4,18 @@ using UnityEngine;
 public class CameraController : MonoBehaviour
 {
     [SerializeField] private Transform target;
+    [SerializeField] private PhotonView view;
 
     private bool isMaster;
-    private PhotonView view;
 
     private void Awake()
     {
-        view = GetComponent<PhotonView>();
         isMaster = PhotonNetwork.IsMasterClient;
     }
 
     private void Update()
     {
+        if (!view.IsMine) return;
         HandleCameras(isMaster);
     }
 
