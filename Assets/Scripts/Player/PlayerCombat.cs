@@ -25,6 +25,7 @@ public class PlayerCombat : MonoBehaviourPun
     private float pushCooldownTimer;
     private float grabCooldownTimer;
     private bool isGrabbing;
+    private bool isHoldingGrabInput;
     private PlayerCombat currentGrabTarget;
 
     private bool raceEnded;
@@ -41,6 +42,7 @@ public class PlayerCombat : MonoBehaviourPun
 
     private void Update()
     {
+
         if (!photonView.IsMine || isOut || raceFullyEnded) return;
 
         if (pushCooldownTimer > 0f) pushCooldownTimer -= Time.deltaTime;
@@ -49,27 +51,21 @@ public class PlayerCombat : MonoBehaviourPun
         if (Mouse.current.leftButton.wasPressedThisFrame && pushCooldownTimer <= 0)
         {
             TryPush();
-            Debug.Log("pushe");
         }
 
         if (Mouse.current.rightButton.wasPressedThisFrame && grabCooldownTimer <= 0)
         {
-            movement.SetAttemptingGrab(true);
-            TryStartGrab();                   
-        }
-        else if (Mouse.current.rightButton.wasReleasedThisFrame)
-        {
-            movement.SetAttemptingGrab(false);
-            if (isGrabbing) EndGrab();
+            StartGrabbing();
         }
 
-        if (isGrabbing && currentGrabTarget != null)
+        if (isHoldingGrabInput)
         {
-            float dist = Vector3.Distance(transform.position, currentGrabTarget.transform.position);
-            if ( dist > grabRange * 1.3f) 
-            {
-                EndGrab();
-            }
+            UpdateGrab();
+        }
+
+        if (Mouse.current.rightButton.wasReleasedThisFrame)
+        {
+            StopGrabbing();
         }
     }
 
@@ -161,35 +157,52 @@ public class PlayerCombat : MonoBehaviourPun
         }
     }
 
-    private void TryStartGrab()
+    private void StartGrabbing()
     {
-        if (isGrabbing) return;
-
-        var target = FindPlayerTarget(grabRadius);
-        if (target == null)
-        {
-            grabCooldownTimer = grabCooldown;
-            return;
-        }
-
-        currentGrabTarget = target;
-        isGrabbing = true;
-        movement.SetGrabPartner(target.photonView.OwnerActorNr);
-        target.photonView.RPC(nameof(ReceiveGrab), RpcTarget.All, photonView.OwnerActorNr);
+        isHoldingGrabInput = true;
+        movement.SetGrabbingSomeone(true);
     }
 
-    private void EndGrab()
+    private void UpdateGrab()
     {
-        if ( currentGrabTarget != null)
+        if (currentGrabTarget == null)
         {
-            currentGrabTarget.photonView.RPC(nameof(ReceiveGrab), RpcTarget.All, -1);
+            var target = FindPlayerTarget(grabRadius);
+            if (target != null)
+            {
+                currentGrabTarget = target;
+                target.photonView.RPC(nameof(ReceiveGrabState), RpcTarget.All, true);
+            }
+        }
+        else
+        {
+            float dist = Vector3.Distance(transform.position, currentGrabTarget.transform.position);
+            if (dist > grabRadius * 1.3f)
+            {
+                ReleaseCurrentTarget();
+            }
+        }
+    }
 
+    private void StopGrabbing()
+    {
+        if (!isHoldingGrabInput) return;
+
+        isHoldingGrabInput = false;
+        movement.SetGrabbingSomeone(false);
+        grabCooldownTimer = grabCooldown;
+        ReleaseCurrentTarget();
+    }
+
+    private void ReleaseCurrentTarget()
+    {
+        if (currentGrabTarget != null)
+        {
+            currentGrabTarget.photonView.RPC(nameof(ReceiveGrabState), RpcTarget.All, false);
             currentGrabTarget = null;
-            isGrabbing = false;
-            grabCooldownTimer = grabCooldown;
-            movement.SetGrabPartner(-1);
         }
     }
+
     [PunRPC]
     private void ApplyKnockback(Vector3 direction, float force)
     {
@@ -199,12 +212,10 @@ public class PlayerCombat : MonoBehaviourPun
     }
 
     [PunRPC]
-    private void ReceiveGrab(int grabberActorNumber)
+    private void ReceiveGrabState(bool grabbed)
     {
         if (!photonView.IsMine) return;
-   
-        movement.SetGrabPartner(grabberActorNumber);
-        Debug.Log("Recibi agarre");
+        movement.SetBeingGrabbed(grabbed);
     }
 
     private void OnDrawGizmos()

@@ -21,9 +21,9 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
     private bool isKnockedDown;
     private float knockdownTimer;
-    private int grabPartnerActor = -1;
 
-
+    private bool isBeingGrabbed;
+    private bool isGrabbingSomeone;
 
     private Vector3 networkPosition;
     private Quaternion networkRotation;
@@ -141,18 +141,12 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
     private float GetGrabMultiplier()
     {
-        if (grabPartnerActor >= 0 || isAttemptingGrab) return grabSlowMultiplier;
-        return 1f;
+        return (isBeingGrabbed || isGrabbingSomeone) ? grabSlowMultiplier : 1f;
     }
 
     public void OnMove(InputValue action)
     {
         moveinput = action.Get<Vector2>();
-    }
-
-    public void SetGrabPartner(int actorNumber)
-    {
-        grabPartnerActor = actorNumber;
     }
 
     public void ApplyKnockback(Vector3 direction, float force)
@@ -167,6 +161,15 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     public void SetAttemptingGrab(bool value)
     {
         isAttemptingGrab = value;
+    }
+    public void SetBeingGrabbed(bool value)
+    {
+        isBeingGrabbed = value;
+    }
+
+    public void SetGrabbingSomeone(bool value)
+    {
+        isGrabbingSomeone = value;
     }
 
     [PunRPC]
