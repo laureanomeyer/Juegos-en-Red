@@ -12,8 +12,13 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     [SerializeField] private Transform mainPlayerCamerTransform;
     [SerializeField] private Transform runnerCameraTransform;
 
-    private Transform cameraTransform;
+    [Header("Salto (solo Runners)")]
+    [SerializeField] private float jumpForce = 6f;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.25f;
+    [SerializeField] private LayerMask groundLayer;
 
+    private Transform cameraTransform;
 
     private Rigidbody rb;
     private Vector2 moveinput;
@@ -33,6 +38,9 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     private bool raceFullyEnded;
     private bool isAttemptingGrab;
 
+    private bool isRunner;
+    private bool jumpRequested;
+    private bool isGrounded;
 
     private Vector3 checkpointPosition;
 
@@ -46,6 +54,8 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         networkPosition = rb.position;
         networkRotation = transform.rotation;
         checkpointPosition = rb.position;
+
+        isRunner = !PhotonManager.Instance.IsLocalPlayerTrapMaster();
 
         if (PhotonNetwork.IsMasterClient)
         {
@@ -78,7 +88,7 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
 
     private void HandleRunnerOut(int actorNumber, bool finished)
     {
-        if (actorNumber != view.OwnerActorNr) return; 
+        if (actorNumber != view.OwnerActorNr) return;
 
         isOut = true;
         if (view.IsMine) rb.linearVelocity = Vector3.zero;
@@ -94,8 +104,18 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
     {
         if (isOut || raceFullyEnded) return;
 
-        if (view.IsMine) SimulateLocalMovement();
+        if (view.IsMine)
+        {
+            UpdateGroundCheck();
+            SimulateLocalMovement();
+        }
         else InterpolateRemote();
+    }
+
+    private void UpdateGroundCheck()
+    {
+        if (groundCheck == null) return;
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, groundLayer);
     }
 
     private void SimulateLocalMovement()
@@ -113,7 +133,19 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         Vector3 targetVel = direction * moveSpeed * speedMultiplier;
         targetVel.y = rb.linearVelocity.y;
         rb.linearVelocity = targetVel;
+
+        if (jumpRequested)
+        {
+            jumpRequested = false;
+
+            if (isRunner && isGrounded)
+            {
+                rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+                rb.AddForce(Vector3.up * jumpForce, ForceMode.VelocityChange);
+            }
+        }
     }
+
     private void InterpolateRemote()
     {
         rb.MovePosition(Vector3.Lerp(rb.position, networkPosition, Time.fixedDeltaTime * interpolationSpeed));
@@ -149,6 +181,11 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         moveinput = action.Get<Vector2>();
     }
 
+    public void OnJump(InputValue action)
+    {
+        if (action.isPressed) jumpRequested = true;
+    }
+
     public void ApplyKnockback(Vector3 direction, float force)
     {
         isKnockedDown = true;
@@ -178,15 +215,11 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         ApplyKnockback(direction, force);
     }
 
-    // Para cuando haya checkpoints en el nivel: los llama un trigger de
-    // checkpoint cuando el jugador (dueño) pasa por ahí.
     public void SetCheckpoint(Vector3 position)
     {
         checkpointPosition = position;
     }
 
-    // Lo llama PlayerController cuando PlayerVitals avisa que se perdió una
-    // vida (y todavía quedan más).
     public void RespawnAtCheckpoint()
     {
         isKnockedDown = false;
