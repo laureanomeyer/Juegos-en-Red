@@ -18,7 +18,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
     [SerializeField] private string gameplaySceneName = "GameScene";
 
     [Header("Configuración de Arranque")]
-    [SerializeField] private int minPlayersToStart = 1;
     [SerializeField] private float countdownDuration = 5f;
 
     private readonly List<GameObject> spawnedEntries = new List<GameObject>();
@@ -49,6 +48,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             PhotonManager.Instance.OnPlayerEntered += HandlePlayerJoined;
             PhotonManager.Instance.OnPlayerLeft += HandlePlayerLeft;
             PhotonManager.Instance.OnMasterLeftRoom += UpdateLobbyUI;
+            PhotonManager.Instance.OnTrapMasterReassigned += UpdateLobbyUI;
         }
     }
 
@@ -60,6 +60,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             PhotonManager.Instance.OnPlayerEntered -= HandlePlayerJoined;
             PhotonManager.Instance.OnPlayerLeft -= HandlePlayerLeft;
             PhotonManager.Instance.OnMasterLeftRoom -= UpdateLobbyUI;
+            PhotonManager.Instance.OnTrapMasterReassigned -= UpdateLobbyUI;
         }
     }
 
@@ -82,21 +83,26 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
         }
         spawnedEntries.Clear();
 
-        bool isMaster = PhotonNetwork.IsMasterClient;
+        bool isTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
+        bool trapMasterPresente = PhotonManager.Instance.IsTrapMasterInRoom();
+        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
 
-        // Contamos únicamente a los jugadores activos
-        int activePlayerCount = 0;
+        // Contamos activos que NO sean el Trap Master, para saber si hay al menos un Runner
+        int runnerCount = 0;
         foreach (var player in PhotonNetwork.PlayerList)
         {
-            if (!player.IsInactive) activePlayerCount++;
+            if (player.IsInactive) continue;
+            if (player.ActorNumber == trapMasterActor) continue;
+            runnerCount++;
         }
 
-        // El Master ve el botón, y se habilita solo si hay 2 o más jugadores activos
-        startButton.gameObject.SetActive(isMaster);
-        startButton.interactable = isMaster && activePlayerCount >= minPlayersToStart;
+        // Solo el Trap Master ve el botón de empezar, y solo se habilita si
+        // él mismo sigue en la sala Y hay al menos un Runner esperando.
+        startButton.gameObject.SetActive(isTrapMaster);
+        startButton.interactable = isTrapMaster && trapMasterPresente && runnerCount >= 1;
 
-        // Solo los Runners pueden salirse de forma normal
-        leaveButton.interactable = !isMaster;
+        // Ahora cualquiera puede salir del lobby, incluido el Trap Master.
+        leaveButton.interactable = true;
 
         // Listado de jugadores
         foreach (var player in PhotonNetwork.PlayerList)
@@ -107,7 +113,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             TMP_Text entryText = entry.GetComponentInChildren<TMP_Text>();
 
             string playerName = string.IsNullOrEmpty(player.NickName) ? $"Player {player.ActorNumber}" : player.NickName;
-            entryText.text = player.IsMasterClient ? $"Master - {playerName}" : playerName;
+            entryText.text = player.ActorNumber == trapMasterActor ? $"Master - {playerName}" : playerName;
 
             spawnedEntries.Add(entry);
         }
@@ -115,12 +121,24 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
 
     private void OnStartButtonClicked()
     {
-        if (!PhotonNetwork.IsMasterClient || isStarting) return;
+        if (isStarting) return;
+        if (!PhotonManager.Instance.IsLocalPlayerTrapMaster()) return;
+
+        // Chequeo defensivo por si un Runner se fue justo antes del click.
+        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
+        int runnerCount = 0;
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (player.IsInactive) continue;
+            if (player.ActorNumber == trapMasterActor) continue;
+            runnerCount++;
+        }
+        if (runnerCount < 1) return;
 
         // 1. Cerramos la sala inmediatamente para que nadie más se conecte
         PhotonNetwork.CurrentRoom.IsOpen = false;
 
-        // 2. Notificamos a todos mediante RPC que arranca la cuenta regresiva de 5 segundos
+        // 2. Notificamos a todos mediante RPC que arranca la cuenta regresiva
         photonView.RPC(nameof(RPC_StartCountdown), RpcTarget.All);
     }
 
@@ -160,7 +178,9 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             countdownText.text = "¡Cargando!";
         }
 
-        // 3. Solo el Master Client ejecuta el cambio de escena
+        // Solo el Master Client de Photon ejecuta el cambio de escena — es una
+        // decisión de autoridad de RED, no de rol de gameplay, así que sigue
+        // usando IsMasterClient a propósito.
         if (PhotonNetwork.IsMasterClient)
         {
             PhotonNetwork.LoadLevel(gameplaySceneName);
@@ -169,7 +189,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
 
     private void OnLeaveButtonClicked()
     {
-        if (PhotonNetwork.IsMasterClient || isStarting) return;
+        if (isStarting) return;
         PhotonManager.Instance.LeaveRoomIntentionally();
     }
 }

@@ -23,9 +23,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public Action<Player> OnPlayerEntered;
     public Action OnMasterSwiched;
     public Action OnTrapMasterDisconnected;
+    public Action OnTrapMasterReassigned;
 
     public Action OnReconnecting;
     public Action OnReconnected;
+
 
     private const string PASSWORD_KEY = "pwd";
     private const string HAS_PASSWORD_KEY = "hasPwd";
@@ -217,8 +219,37 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         OnPlayerLeft?.Invoke(otherPlayer);
 
         if (otherPlayer.ActorNumber == GetTrapMasterActor())
+        {
             OnTrapMasterDisconnected?.Invoke();
+            TryReassignTrapMaster();
+        }
     }
+
+    private void TryReassignTrapMaster()
+    {
+        if (!PhotonNetwork.InRoom) return;
+        if (PhotonNetwork.CurrentRoom.Players.Count == 0) return;
+
+        // Evitamos que todos los clientes escriban la property al mismo tiempo:
+        // solo el de menor ActorNumber presente lo hace.
+        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key < localActor) return;
+        }
+
+        int nuevoTrapMaster = int.MaxValue;
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key < nuevoTrapMaster) nuevoTrapMaster = kvp.Key;
+        }
+
+        var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, nuevoTrapMaster } };
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+
+        Debug.Log($"[PhotonManager] Trap Master reasignado a ActorNumber={nuevoTrapMaster}");
+    }
+
 
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
