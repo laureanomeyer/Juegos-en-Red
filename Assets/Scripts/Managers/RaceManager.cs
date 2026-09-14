@@ -41,6 +41,19 @@ public class RaceManager : MonoBehaviourPun
         AliveRunnersCount = totalRunners;
     }
 
+    private void OnEnable()
+    {
+        if (PhotonManager.Instance != null)
+            PhotonManager.Instance.OnPlayerLeft += HandlePlayerLeftRoom;
+    }
+
+    private void OnDisable()
+    {
+        if (PhotonManager.Instance != null)
+            PhotonManager.Instance.OnPlayerLeft -= HandlePlayerLeftRoom;
+    }
+
+
     public void ReportFinish()
     {
         photonView.RPC(nameof(RPC_ReportFinish), RpcTarget.All, PhotonNetwork.LocalPlayer.ActorNumber);
@@ -135,6 +148,28 @@ public class RaceManager : MonoBehaviourPun
         }
 
         return true;
+    }
+
+    private void HandlePlayerLeftRoom(Player p)
+    {
+        if (raceEnded) return;
+
+        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
+        int corredoresEnSala = 0;
+
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key != trapMasterActor) corredoresEnSala++;
+        }
+
+        if (corredoresEnSala > 0) return; 
+
+        if (!EsElActorMasBajoPresente()) return;
+
+        AliveRunnersCount = 0;
+        OnAliveRunnersCountChanged?.Invoke(0);
+
+        EndRace(runnersWon: false);
     }
 
     private void LoadLobby()
