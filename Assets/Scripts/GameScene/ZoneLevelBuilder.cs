@@ -106,7 +106,12 @@ public class ZoneLevelBuilder : MonoBehaviourPun
 
     public void RequestTriggerTrap(int zoneIndex)
     {
-        Debug.Log($"[Builder] RequestTriggerTrap zone={zoneIndex}, CanTrigger={CanTriggerTrap(zoneIndex)}");
+        if (!PhotonManager.Instance.IsLocalPlayerTrapMaster())
+        {
+            Debug.LogWarning("[Builder] Intento de activar trampa por alguien que no es el Trampero.");
+            return;
+        }
+
         if (!CanTriggerTrap(zoneIndex)) return;
 
         nextAvailableTime[zoneIndex] = Time.time + trapCooldown;
@@ -114,9 +119,16 @@ public class ZoneLevelBuilder : MonoBehaviourPun
     }
 
     [PunRPC]
-    private void RPC_TriggerTrap(int zoneIndex)
+    private void RPC_TriggerTrap(int zoneIndex, PhotonMessageInfo info)
     {
-        Debug.Log($"[Builder] RPC recibido, zone={zoneIndex}, trampa null? {trampas[zoneIndex] == null}");
+        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
+
+        if (info.Sender == null || info.Sender.ActorNumber != trapMasterActor)
+        {
+            Debug.LogWarning($"[Builder] RPC ignorado: lo mandó ActorNumber={info.Sender?.ActorNumber}, pero el Trampero es {trapMasterActor}.");
+            return;
+        }
+
         if (zoneIndex < 0 || zoneIndex >= trampas.Count) return;
         trampas[zoneIndex]?.Activate();
     }

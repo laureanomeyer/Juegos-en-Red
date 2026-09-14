@@ -11,6 +11,10 @@ public class ButtonBehavior : MonoBehaviour
 
     public ITrap Trap => trapBehaviour as ITrap;
 
+    private void Awake()
+    {
+        Debug.Log($"[Botón] lossyScale: {transform.lossyScale}");
+    }
     // Llamado por ZoneLevelBuilder justo después de instanciar la zona.
     public void Initialize(ZoneLevelBuilder builder, int zoneIndex)
     {
