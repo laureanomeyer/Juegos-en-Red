@@ -48,7 +48,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             PhotonManager.Instance.OnPlayerEntered += HandlePlayerJoined;
             PhotonManager.Instance.OnPlayerLeft += HandlePlayerLeft;
             PhotonManager.Instance.OnMasterLeftRoom += UpdateLobbyUI;
-            PhotonManager.Instance.OnTrapMasterReassigned += UpdateLobbyUI;
         }
     }
 
@@ -60,7 +59,6 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             PhotonManager.Instance.OnPlayerEntered -= HandlePlayerJoined;
             PhotonManager.Instance.OnPlayerLeft -= HandlePlayerLeft;
             PhotonManager.Instance.OnMasterLeftRoom -= UpdateLobbyUI;
-            PhotonManager.Instance.OnTrapMasterReassigned -= UpdateLobbyUI;
         }
     }
 
@@ -82,19 +80,23 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
         }
         spawnedEntries.Clear();
 
-        bool isTrapMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
-        bool trapMasterPresente = PhotonManager.Instance.IsTrapMasterInRoom();
-        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
-        int runnerCount = 0;
+        // Candidato a Trap Master = quien tiene el ActorNumber más bajo AHORA,
+        // calculado en vivo — no depende de la Custom Property hasta que
+        // efectivamente se aprieta Start.
+        int candidatoMaster = PhotonManager.Instance.GetLowestActorNumberPresent();
+        bool esCandidato = PhotonManager.Instance.IsLocalPlayerLowestActorPresent();
 
+        int runnerCount = 0;
         foreach (var player in PhotonNetwork.PlayerList)
         {
             if (player.IsInactive) continue;
-            if (player.ActorNumber == trapMasterActor) continue;
+            if (player.ActorNumber == candidatoMaster) continue;
             runnerCount++;
         }
-        startButton.gameObject.SetActive(isTrapMaster);
-        startButton.interactable = isTrapMaster && trapMasterPresente && runnerCount >= 1;
+
+        startButton.gameObject.SetActive(esCandidato);
+        startButton.interactable = esCandidato && runnerCount >= 1;
+
         leaveButton.interactable = true;
 
         foreach (var player in PhotonNetwork.PlayerList)
@@ -105,7 +107,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
             TMP_Text entryText = entry.GetComponentInChildren<TMP_Text>();
 
             string playerName = string.IsNullOrEmpty(player.NickName) ? $"Player {player.ActorNumber}" : player.NickName;
-            entryText.text = player.ActorNumber == trapMasterActor ? $"Master - {playerName}" : playerName;
+            entryText.text = player.ActorNumber == candidatoMaster ? $"Master - {playerName}" : playerName;
 
             spawnedEntries.Add(entry);
         }
@@ -114,17 +116,20 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
     private void OnStartButtonClicked()
     {
         if (isStarting) return;
-        if (!PhotonManager.Instance.IsLocalPlayerTrapMaster()) return;
+        if (!PhotonManager.Instance.IsLocalPlayerLowestActorPresent()) return;
 
-        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
+        int candidatoMaster = PhotonManager.Instance.GetLowestActorNumberPresent();
         int runnerCount = 0;
         foreach (var player in PhotonNetwork.PlayerList)
         {
             if (player.IsInactive) continue;
-            if (player.ActorNumber == trapMasterActor) continue;
+            if (player.ActorNumber == candidatoMaster) continue;
             runnerCount++;
         }
         if (runnerCount < 1) return;
+
+        // Acá, y solo acá, se fija el Trap Master para toda la partida.
+        PhotonManager.Instance.AssignTrapMasterForMatchStart();
 
         PhotonNetwork.CurrentRoom.IsOpen = false;
         photonView.RPC(nameof(RPC_StartCountdown), RpcTarget.All);
@@ -134,6 +139,7 @@ public class RoomLobbyUI : MonoBehaviourPunCallbacks
     private void RPC_StartCountdown()
     {
         isStarting = true;
+
         startButton.interactable = false;
         leaveButton.interactable = false;
 

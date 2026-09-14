@@ -66,8 +66,6 @@ public class RaceManager : MonoBehaviourPun
     private void RPC_ReportFinish(int actorNumber)
     {
         if (raceEnded) return;
-        if (actorNumber == PhotonManager.Instance.GetTrapMasterActor()) return;
-        if (eliminatedActors.Contains(actorNumber)) return;
         if (!finishedActors.Add(actorNumber)) return;
 
         OnRunnerOut?.Invoke(actorNumber, true);
@@ -79,7 +77,6 @@ public class RaceManager : MonoBehaviourPun
     private void RPC_ReportEliminated(int actorNumber)
     {
         if (raceEnded) return;
-        if (finishedActors.Contains(actorNumber)) return;
         if (!eliminatedActors.Add(actorNumber)) return;
 
         OnRunnerOut?.Invoke(actorNumber, false);

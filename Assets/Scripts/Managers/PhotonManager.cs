@@ -55,29 +55,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
     }
 
-    public override void OnEnable()
-    {
-        base.OnEnable();
-        SceneManager.sceneLoaded += HandleSceneLoaded;
-    }
-
-    public override void OnDisable()
-    {
-        base.OnDisable();
-        SceneManager.sceneLoaded -= HandleSceneLoaded;
-    }
-
-    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name != LOBBY_SCENE_NAME) return;
-        if (!PhotonNetwork.InRoom) return;
-
-        if (!IsTrapMasterInRoom())
-        {
-            TryReassignTrapMaster();
-        }
-    }
-
     public override void OnConnectedToMaster()
     {
         Debug.Log("Conectado al Master Server de Photon");
@@ -134,6 +111,39 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     public bool IsTrapMasterInRoom()
     {
         return PhotonNetwork.CurrentRoom.Players.ContainsKey(GetTrapMasterActor());
+    }
+
+    // Regla "en vivo" para el LOBBY, independiente de la Custom Property:
+    // el candidato a Trap Master es siempre el de menor ActorNumber presente
+    // en este instante. No se escribe nada hasta que efectivamente arranca la partida.
+    public int GetLowestActorNumberPresent()
+    {
+        int lowest = int.MaxValue;
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key < lowest) lowest = kvp.Key;
+        }
+        return lowest;
+    }
+
+    public bool IsLocalPlayerLowestActorPresent()
+    {
+        if (!PhotonNetwork.InRoom) return false;
+        return PhotonNetwork.LocalPlayer.ActorNumber == GetLowestActorNumberPresent();
+    }
+
+    // Se llama UNA sola vez, desde RoomLobbyUI, en el instante exacto en que
+    // arranca la partida. A partir de acá el valor queda fijo para toda la
+    // carrera — nadie más lo vuelve a tocar, se vaya quien se vaya.
+    public void AssignTrapMasterForMatchStart()
+    {
+        int elegido = GetLowestActorNumberPresent();
+        if (elegido == int.MaxValue) return;
+
+        var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, elegido } };
+        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
+
+        Debug.Log($"[PhotonManager] Trap Master fijado para esta partida: ActorNumber={elegido}");
     }
 
     public void JoinRoom(string roomName, string enteredPassword)
@@ -243,35 +253,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         base.OnPlayerLeftRoom(otherPlayer);
         OnPlayerLeft?.Invoke(otherPlayer);
 
+        // Solo avisamos (para el cartel de "vía libre" durante la carrera).
+        // Ya NO reasignamos acá — el rol queda fijo hasta la próxima partida.
         if (otherPlayer.ActorNumber == GetTrapMasterActor())
         {
             OnTrapMasterDisconnected?.Invoke();
-            //TryReassignTrapMaster();
         }
-    }
-
-    public void TryReassignTrapMaster()
-    {
-        if (!PhotonNetwork.InRoom) return;
-        if (PhotonNetwork.CurrentRoom.Players.Count == 0) return;
-        if (SceneManager.GetActiveScene().name != LOBBY_SCENE_NAME) return;
-
-        int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
-        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
-        {
-            if (kvp.Key < localActor) return;
-        }
-
-        int nuevoTrapMaster = int.MaxValue;
-        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
-        {
-            if (kvp.Key < nuevoTrapMaster) nuevoTrapMaster = kvp.Key;
-        }
-
-        var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, nuevoTrapMaster } };
-        PhotonNetwork.CurrentRoom.SetCustomProperties(props);
-
-        Debug.Log($"[PhotonManager] Trap Master reasignado a ActorNumber={nuevoTrapMaster}");
     }
 
     public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
@@ -314,6 +301,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public override void OnCreatedRoom()
     {
+        // Valor inicial (el creador), que de todos modos se sobrescribe con
+        // AssignTrapMasterForMatchStart() apenas arranque la primera partida.
         var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, PhotonNetwork.LocalPlayer.ActorNumber } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
