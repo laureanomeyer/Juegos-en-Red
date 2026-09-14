@@ -157,7 +157,6 @@ public class PlayerMovement : MonoBehaviourPun, IPunObservable
         rb.AddForce(direction * force, ForceMode.Impulse);
     }
 
-
     public void SetAttemptingGrab(bool value)
     {
         isAttemptingGrab = value;

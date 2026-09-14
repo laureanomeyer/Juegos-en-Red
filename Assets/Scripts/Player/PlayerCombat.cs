@@ -7,13 +7,11 @@ using static UnityEngine.UI.Image;
 
 public class PlayerCombat : MonoBehaviourPun
 {
-    [SerializeField] private float pushRange = 1.5f;
-    [SerializeField] private float pushRadius = 0.6f;
+    [SerializeField] private float pushRadius = 2f;
     [SerializeField] private float pushForce = 8f;
     [SerializeField] private float pushCooldown = 1f;
 
-    [SerializeField] private float grabRange = 2f;
-    [SerializeField] private float grabRadius = 0.8f;
+    [SerializeField] private float grabRadius = 2f;
     [SerializeField] private float grabCooldown = 2f;
 
     [SerializeField] private LayerMask playerLayer;
@@ -177,7 +175,7 @@ public class PlayerCombat : MonoBehaviourPun
         else
         {
             float dist = Vector3.Distance(transform.position, currentGrabTarget.transform.position);
-            if (dist > grabRadius * 1.3f)
+            if (dist > grabRadius * 5f)
             {
                 ReleaseCurrentTarget();
             }

@@ -49,6 +49,7 @@ MonoBehaviour:
   - RPC_ReportFinish
   - RPC_ReportEliminated
   - RPC_EndRace
+  - ReceiveGrabState
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 0
