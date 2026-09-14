@@ -550,8 +550,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: SALIR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ad84a61f004902b4c987e4c99c146c72, type: 2}
-  m_sharedMaterial: {fileID: -6470606203026855466, guid: ad84a61f004902b4c987e4c99c146c72, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7b4443ab5aacf534d8e855b499ae598a, type: 2}
+  m_sharedMaterial: {fileID: 366940646459035150, guid: 7b4443ab5aacf534d8e855b499ae598a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -581,7 +581,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 102
+  m_fontStyle: 34
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -1131,8 +1131,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: JUGAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: ad84a61f004902b4c987e4c99c146c72, type: 2}
-  m_sharedMaterial: {fileID: -6470606203026855466, guid: ad84a61f004902b4c987e4c99c146c72, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 7b4443ab5aacf534d8e855b499ae598a, type: 2}
+  m_sharedMaterial: {fileID: 366940646459035150, guid: 7b4443ab5aacf534d8e855b499ae598a, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1162,7 +1162,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 6
+  m_fontStyle: 34
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
