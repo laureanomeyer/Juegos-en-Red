@@ -11,7 +11,6 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 {
     public static PhotonManager Instance;
 
-
     public Action OnRoom;
     public Action<Dictionary<string, RoomInfo>> OnRoomListUpdated;
     public Action<string> OnJoinFailed;
@@ -56,6 +55,29 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         PhotonNetwork.ConnectUsingSettings();
     }
 
+    public override void OnEnable()
+    {
+        base.OnEnable();
+        SceneManager.sceneLoaded += HandleSceneLoaded;
+    }
+
+    public override void OnDisable()
+    {
+        base.OnDisable();
+        SceneManager.sceneLoaded -= HandleSceneLoaded;
+    }
+
+    private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name != LOBBY_SCENE_NAME) return;
+        if (!PhotonNetwork.InRoom) return;
+
+        if (!IsTrapMasterInRoom())
+        {
+            TryReassignTrapMaster();
+        }
+    }
+
     public override void OnConnectedToMaster()
     {
         Debug.Log("Conectado al Master Server de Photon");
@@ -69,6 +91,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public void CreateRoom(string roomName, string password, byte maxPlayers = 5)
     {
+        if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            Debug.LogWarning($"[PhotonManager] CreateRoom pedido pero el cliente no está listo (estado: {PhotonNetwork.NetworkClientState}).");
+            OnCreateFailed?.Invoke("Todavía conectando al servidor, esperá un segundo e intentá de nuevo");
+            return;
+        }
+
         int[] zoneSeq = GenerarSecuenciaDeZonas(totalZonas, variantesDeZona, evitarZonasConsecutivasRepetidas);
 
         var options = new RoomOptions
@@ -78,12 +107,11 @@ public class PhotonManager : MonoBehaviourPunCallbacks
             IsOpen = true,
             PlayerTtl = 15000,
             CustomRoomProperties = new Hashtable
-        {
-            { PASSWORD_KEY, password ?? "" },
-            { HAS_PASSWORD_KEY, !string.IsNullOrEmpty(password) },
-            { ZONE_SEQ_KEY, zoneSeq }
-
-        },
+            {
+                { PASSWORD_KEY, password ?? "" },
+                { HAS_PASSWORD_KEY, !string.IsNullOrEmpty(password) },
+                { ZONE_SEQ_KEY, zoneSeq }
+            },
             CustomRoomPropertiesForLobby = new[] { PASSWORD_KEY, HAS_PASSWORD_KEY }
         };
 
@@ -110,6 +138,12 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
     public void JoinRoom(string roomName, string enteredPassword)
     {
+        if (!PhotonNetwork.IsConnectedAndReady)
+        {
+            OnJoinFailed?.Invoke("Todavía conectando al servidor, esperá un segundo e intentá de nuevo");
+            return;
+        }
+
         if (cachedRoomList.TryGetValue(roomName, out var info))
         {
             bool hasPassword = info.CustomProperties.TryGetValue(HAS_PASSWORD_KEY, out var hp) && (bool)hp;
@@ -126,6 +160,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.JoinRoom(roomName);
     }
+
     public bool RoomHasPassword(RoomInfo info)
     {
         return info != null && info.CustomProperties.TryGetValue(HAS_PASSWORD_KEY, out var hp) && (bool)hp;
@@ -211,6 +246,7 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         if (otherPlayer.ActorNumber == GetTrapMasterActor())
         {
             OnTrapMasterDisconnected?.Invoke();
+            //TryReassignTrapMaster();
         }
     }
 
@@ -218,6 +254,8 @@ public class PhotonManager : MonoBehaviourPunCallbacks
     {
         if (!PhotonNetwork.InRoom) return;
         if (PhotonNetwork.CurrentRoom.Players.Count == 0) return;
+        if (SceneManager.GetActiveScene().name != LOBBY_SCENE_NAME) return;
+
         int localActor = PhotonNetwork.LocalPlayer.ActorNumber;
         foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
         {
@@ -236,6 +274,13 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         Debug.Log($"[PhotonManager] Trap Master reasignado a ActorNumber={nuevoTrapMaster}");
     }
 
+    public override void OnRoomPropertiesUpdate(Hashtable propertiesThatChanged)
+    {
+        if (propertiesThatChanged.ContainsKey(TRAP_MASTER_ACTOR_KEY))
+        {
+            OnTrapMasterReassigned?.Invoke();
+        }
+    }
 
     public override void OnMasterClientSwitched(Player newMasterClient)
     {
@@ -266,9 +311,9 @@ public class PhotonManager : MonoBehaviourPunCallbacks
 
         intentionalDisconnect = false;
     }
+
     public override void OnCreatedRoom()
     {
-        
         var props = new Hashtable { { TRAP_MASTER_ACTOR_KEY, PhotonNetwork.LocalPlayer.ActorNumber } };
         PhotonNetwork.CurrentRoom.SetCustomProperties(props);
     }
