@@ -10,7 +10,7 @@ public class CameraController : MonoBehaviour
 
     private void Awake()
     {
-        isMaster = PhotonNetwork.IsMasterClient;
+        isMaster = PhotonManager.Instance.IsLocalPlayerTrapMaster();
     }
 
     private void Update()
