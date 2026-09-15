@@ -37,8 +37,7 @@ public class RaceManager : MonoBehaviourPun
         OnRunnerOut?.Invoke(actorNumber, true);
         if(actorNumber == PhotonNetwork.LocalPlayer.ActorNumber)
         {
-
-        EndRace(runnersWon: true);
+            EndRace(runnersWon: true);
         }
     }
 
@@ -46,6 +45,42 @@ public class RaceManager : MonoBehaviourPun
     private void RPC_ReportEliminated(int actorNumber)
     {
         OnRunnerOut?.Invoke(actorNumber, false);
+
+        if (actorNumber == PhotonNetwork.LocalPlayer.ActorNumber && TodosLosCorredoresEliminados())
+        {
+            EndRace(runnersWon: false);
+        }
+    }
+
+    private bool TodosLosCorredoresEliminados()
+    {
+        int trapMasterActor = PhotonManager.Instance.GetTrapMasterActor();
+        Debug.Log($"[RaceManager] TodosLosCorredoresEliminados | trapMasterActor={trapMasterActor}");
+
+        foreach (var kvp in PhotonNetwork.CurrentRoom.Players)
+        {
+            if (kvp.Key == trapMasterActor) continue;
+            if (kvp.Value.IsInactive) continue;
+
+            var movement = PlayerMovement.Registry.TryGetValue(kvp.Key, out var m) ? m : null;
+            if (movement == null)
+            {
+                Debug.Log($"[RaceManager] Actor {kvp.Key}: sin PlayerMovement en Registry, se ignora.");
+                continue;
+            }
+
+            var vitals = movement.GetComponent<PlayerVitals>();
+            Debug.Log($"[RaceManager] Actor {kvp.Key}: CurrentLives={vitals?.CurrentLives}");
+
+            if (vitals != null && vitals.CurrentLives > 0)
+            {
+                Debug.Log($"[RaceManager] TodosLosCorredoresEliminados -> False (actor {kvp.Key} sigue vivo)");
+                return false;
+            }
+        }
+
+        Debug.Log("[RaceManager] TodosLosCorredoresEliminados -> True");
+        return true;
     }
 
     private void EndRace(bool runnersWon)
@@ -80,9 +115,6 @@ public class RaceManager : MonoBehaviourPun
             PhotonNetwork.CurrentRoom.IsOpen = true;
         }
 
-        if (!PhotonNetwork.IsMasterClient) return;
-
         PhotonNetwork.LoadLevel(lobbySceneName);
- 
     }
 }
