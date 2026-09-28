@@ -1,13 +1,13 @@
 using Photon.Pun;
-using System;
 using UnityEngine;
 
 public class RaceStart : MonoBehaviourPun
 {
-    private PhotonView myView;
-    private DateTime? startTime = null;
+    private double startTime = -1;
     private bool triggered = false;
     private bool raceStarted = false;
+
+    private PhotonView myView;
     private TankMovement movement;
 
     private void Awake()
@@ -18,34 +18,30 @@ public class RaceStart : MonoBehaviourPun
 
     private void Update()
     {
-        if (!myView.IsMine) return;
-        if (startTime == null) return;
+        if (!raceStarted) return;
+        if (startTime < 0) return;
 
-        if (DateTime.UtcNow >= startTime.Value.ToUniversalTime() && raceStarted == false)
+        if (PhotonNetwork.Time >= startTime)
         {
-            movement.SetMove(true);
             raceStarted = true;
+            movement.SetMove(true);
             Debug.Log("Carrera empezada");
         }
     }
 
     public void OnJump()
     {
-        if (!myView.IsMine) return;
-        if (!PhotonNetwork.IsMasterClient) return;
-        Debug.Log("Start apretado");
-        if (!triggered)
-        {
-            triggered = true;
-            photonView.RPC(nameof(RPC_SetStartTime), RpcTarget.AllBufferedViaServer);
-        }
+        if(!PhotonNetwork.IsMasterClient || triggered) return;
+        triggered = true;
+
+        double t = PhotonNetwork.Time + 5.0f;
+        photonView.RPC(nameof(RPC_SetStartTime), RpcTarget.AllBufferedViaServer, t);
     }
 
     [PunRPC]
-    private void RPC_SetStartTime()
+    private void RPC_SetStartTime(double t)
     {
         Debug.Log("Start seteado");
-        var timeToStart = DateTime.UtcNow.AddSeconds(5f);
-        startTime = timeToStart;
+        startTime = t;
     }
 }
