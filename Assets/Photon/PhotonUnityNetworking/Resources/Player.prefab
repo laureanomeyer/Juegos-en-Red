@@ -19,6 +19,7 @@ GameObject:
   - component: {fileID: 3725527283891710387}
   - component: {fileID: -685296493250939047}
   - component: {fileID: 1133088952899977130}
+  - component: {fileID: 6619378490578908582}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -197,9 +198,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TankShooter
   fireAction: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 8
   bullet: {fileID: 3430243724849531825, guid: 94c07769e5c297b4db1f4d0cd14e6b86, type: 3}
 --- !u!114 &3725527283891710387
 MonoBehaviour:
@@ -277,3 +275,15 @@ MonoBehaviour:
   m_DefaultActionMap: 
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &6619378490578908582
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4494196494832655812}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b47e7056de57fa498f85e2f78cb003f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RaceStart

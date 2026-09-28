@@ -11,6 +11,8 @@ public class TankMovement : MonoBehaviour
     private Vector2 input;
     private PhotonView myView;
 
+    private bool canMove = false;
+
     private void Awake()
     {
         myView = GetComponent<PhotonView>();
@@ -31,6 +33,12 @@ public class TankMovement : MonoBehaviour
 
     public void OnMove(InputValue action)
     {
+        if (!canMove) return;
         input = action.Get<Vector2>();
+    }
+
+    public void SetMove(bool can)
+    {
+        canMove = can;
     }
 }
