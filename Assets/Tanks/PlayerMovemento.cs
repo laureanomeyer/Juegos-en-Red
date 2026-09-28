@@ -11,13 +11,14 @@ public class TankMovement : MonoBehaviour
     private Vector2 input;
     private PhotonView myView;
 
-    private bool canMove = false;
+    [SerializeField] private bool canMove;
 
     private void Awake()
     {
         myView = GetComponent<PhotonView>();
         rb = GetComponent<Rigidbody>();
         rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
+        canMove = false;
     }
 
     private void FixedUpdate()

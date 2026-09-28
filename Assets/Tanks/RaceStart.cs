@@ -1,10 +1,11 @@
 using Photon.Pun;
 using System;
+using UnityEngine;
 
 public class RaceStart : MonoBehaviourPun
 {
     private PhotonView myView;
-    private DateTime startTime;
+    private DateTime? startTime = null;
     private bool triggered = false;
     private bool raceStarted = false;
     private TankMovement movement;
@@ -18,11 +19,13 @@ public class RaceStart : MonoBehaviourPun
     private void Update()
     {
         if (!myView.IsMine) return;
-        if (startTime == null) return; 
+        if (startTime == null) return;
 
-        if (DateTime.UtcNow >= startTime)
+        if (DateTime.UtcNow >= startTime.Value.ToUniversalTime() && raceStarted == false)
         {
             movement.SetMove(true);
+            raceStarted = true;
+            Debug.Log("Carrera empezada");
         }
     }
 
@@ -30,7 +33,7 @@ public class RaceStart : MonoBehaviourPun
     {
         if (!myView.IsMine) return;
         if (!PhotonNetwork.IsMasterClient) return;
-
+        Debug.Log("Start apretado");
         if (!triggered)
         {
             triggered = true;
@@ -41,6 +44,7 @@ public class RaceStart : MonoBehaviourPun
     [PunRPC]
     private void RPC_SetStartTime()
     {
+        Debug.Log("Start seteado");
         var timeToStart = DateTime.UtcNow.AddSeconds(5f);
         startTime = timeToStart;
     }
