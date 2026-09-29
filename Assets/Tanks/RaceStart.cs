@@ -18,7 +18,7 @@ public class RaceStart : MonoBehaviourPun
 
     private void Update()
     {
-        if (!raceStarted) return;
+        if (raceStarted) return;
         if (startTime < 0) return;
 
         if (PhotonNetwork.Time >= startTime)
@@ -32,6 +32,7 @@ public class RaceStart : MonoBehaviourPun
     public void OnJump()
     {
         if(!PhotonNetwork.IsMasterClient || triggered) return;
+
         triggered = true;
 
         double t = PhotonNetwork.Time + 5.0f;
@@ -41,7 +42,7 @@ public class RaceStart : MonoBehaviourPun
     [PunRPC]
     private void RPC_SetStartTime(double t)
     {
-        Debug.Log("Start seteado");
-        startTime = t;
+        foreach (var race in FindObjectsByType<RaceStart>(FindObjectsSortMode.None))
+            race.startTime = t;
     }
 }
