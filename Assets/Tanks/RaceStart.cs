@@ -7,12 +7,10 @@ public class RaceStart : MonoBehaviourPun
     private bool triggered = false;
     private bool raceStarted = false;
 
-    private PhotonView myView;
     private TankMovement movement;
 
     private void Awake()
     {
-        myView = GetComponent<PhotonView>();
         movement = GetComponent<TankMovement>();
     }
 
@@ -31,7 +29,7 @@ public class RaceStart : MonoBehaviourPun
 
     public void OnJump()
     {
-        if(!PhotonNetwork.IsMasterClient || triggered) return;
+        if (!PhotonNetwork.IsMasterClient || triggered) return;
 
         triggered = true;
 
