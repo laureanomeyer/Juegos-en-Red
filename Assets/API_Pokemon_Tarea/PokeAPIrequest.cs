@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -16,6 +17,9 @@ public class PokeApiRequest : MonoBehaviour
     private bool jugando = false;
     private string textoIngresado = "";
     private bool pedidoAdivinar = false;
+
+    [SerializeField] private TextMeshProUGUI text;
+
 
     private void Start()
     {
@@ -66,6 +70,7 @@ public class PokeApiRequest : MonoBehaviour
         yield return StartCoroutine(DescargarImagen(pokemonActual.sprites.front_default));
 
         Debug.Log("<b>¿Quién es ese Pokémon?</b> Escribí tu respuesta y apretá Enter.");
+        text.text = "¿Quién es ese Pokémon?</b> Escribí tu respuesta y apretá Enter.";
         DarPista();
         jugando = true;
     }
@@ -110,6 +115,7 @@ public class PokeApiRequest : MonoBehaviour
         pistasDadas++;
 
         Debug.Log("Pista " + pistasDadas + "/" + pokemonActual.stats.Count + " → " + (s.stat.name) + ": " + s.base_stat);
+        text.text = "Pista " + pistasDadas + "/" + pokemonActual.stats.Count + " → " + (s.stat.name) + ": " + s.base_stat;
         return true;
     }
 
@@ -130,6 +136,7 @@ public class PokeApiRequest : MonoBehaviour
             jugando = false;
             imagenPokemon.color = Color.white;
             Debug.Log("<b>¡CORRECTO!</b> Era " + pokemonActual.name.ToUpper());
+            text.text = "¡CORRECTO!</b> Era " + pokemonActual.name.ToUpper();
             MostrarPokemon(pokemonActual);
             StartCoroutine(SiguienteConEspera());
         }
@@ -139,6 +146,7 @@ public class PokeApiRequest : MonoBehaviour
 
             if (!DarPista())
                 Debug.Log("No quedan más pistas, seguí probando.");
+
         }
     }
 
