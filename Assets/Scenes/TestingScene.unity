@@ -501,8 +501,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Interactor
   cam: {fileID: 1525173213}
-  range: 3
-  pickupRange: 6
+  range: 2
+  pickupRange: 3
   mask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -769,7 +769,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PickableObject
   prompt: 'Agarrar [E]'
-  weight: 0.3
+  weight: 0.75
 --- !u!23 &983064927
 MeshRenderer:
   m_ObjectHideFlags: 0
