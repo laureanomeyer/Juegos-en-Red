@@ -1,0 +1,38 @@
+using System;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class RoomListEntryUI : MonoBehaviour
+{
+    [SerializeField] private TMP_Text roomNameText;
+    [SerializeField] private TMP_Text playerCountText;
+    [SerializeField] private Button selectButton;
+    [SerializeField] private GameObject lockIcon;
+    [SerializeField] private TMP_Text stateText;
+
+    // Avisa con el nombre de la sala y si tiene contraseña, para que el popup de unión sepa si tiene que pedir clave.
+    public void Setup(string roomName, int playerCount, int maxPlayers, bool hasPassword, bool isOpen, Action<string, bool> onSelected)
+    {
+        if (roomNameText != null) roomNameText.text = roomName;
+        if (playerCountText != null) playerCountText.text = $"{playerCount}/{maxPlayers}";
+        if (lockIcon != null) lockIcon.SetActive(hasPassword);
+
+        bool isFull = playerCount >= maxPlayers;
+        bool isJoinable = isOpen && !isFull;
+
+        if (selectButton != null)
+        {
+            selectButton.interactable = isJoinable;
+            selectButton.onClick.RemoveAllListeners();
+            selectButton.onClick.AddListener(() => onSelected?.Invoke(roomName, hasPassword));
+        }
+
+        if (stateText != null)
+        {
+            if (!isOpen) stateText.text = "En curso";
+            else if (isFull) stateText.text = "Llena";
+            else stateText.text = string.Empty;
+        }
+    }
+}
