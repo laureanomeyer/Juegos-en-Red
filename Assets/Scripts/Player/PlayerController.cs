@@ -43,9 +43,12 @@ public class PlayerController : MonoBehaviourPun
             playerCamera.gameObject.SetActive(false);
             enabled = false;
             return;
+        }else
+        {
+            playerCamera.gameObject.SetActive(true);
         }
 
-        SetupLocalPlayer();
+            SetupLocalPlayer();
     }
 
     private void SetupLocalPlayer()
@@ -55,11 +58,11 @@ public class PlayerController : MonoBehaviourPun
             rend.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
 
         // La cámara de este jugador reemplaza a la de la escena.
-       /* if (Camera.main != null)
-            Camera.main.gameObject.SetActive(false);
+        /* if (Camera.main != null)
+             Camera.main.gameObject.SetActive(false);
 
-        playerCamera.gameObject.SetActive(true);
-        playerCamera.tag = "MainCamera";*/
+
+         playerCamera.tag = "MainCamera";*/
     }
 
     private void Update()
