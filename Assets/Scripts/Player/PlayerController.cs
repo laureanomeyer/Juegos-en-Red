@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviourPun
             // (que si no, pelea con la posición que le manda PhotonTransformView).
             input.enabled = false;
             controller.enabled = false;
+            playerCamera.gameObject.SetActive(false);
             enabled = false;
             return;
         }
@@ -54,11 +55,11 @@ public class PlayerController : MonoBehaviourPun
             rend.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
 
         // La cámara de este jugador reemplaza a la de la escena.
-        if (Camera.main != null)
+       /* if (Camera.main != null)
             Camera.main.gameObject.SetActive(false);
 
         playerCamera.gameObject.SetActive(true);
-        playerCamera.tag = "MainCamera";
+        playerCamera.tag = "MainCamera";*/
     }
 
     private void Update()
