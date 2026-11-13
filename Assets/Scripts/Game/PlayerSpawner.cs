@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class PlayerSpawner : MonoBehaviour
 {
-    [SerializeField] private string playerPrefabName = "Player";
+    [Tooltip("El prefab Player. Tiene que estar dentro de una carpeta Resources.")]
+    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private float waitForRoomTimeout = 10f;
     [SerializeField] private float reconnectCheckDelay = 1.5f;
 
     private void OnEnable()
@@ -20,37 +22,43 @@ public class PlayerSpawner : MonoBehaviour
             PhotonManager.Instance.OnReconnected -= HandleReconnected;
     }
 
-    private void Start()
+    private IEnumerator Start()
     {
-        if (!PhotonNetwork.InRoom)
+        // El segundo jugador puede llegar a esta escena un instante antes de que Photon
+        // lo marque como "dentro de la sala": esperamos en lugar de rendirnos.
+        float remaining = waitForRoomTimeout;
+        while (!PhotonNetwork.InRoom && remaining > 0f)
         {
-            Debug.LogWarning("[PlayerSpawner] No estás en una sala. Arrancá desde la escena Menu.");
-            return;
+            remaining -= Time.unscaledDeltaTime;
+            yield return null;
         }
 
-        SpawnLocalPlayer();
+        if (!PhotonNetwork.InRoom)
+        {
+            Debug.LogWarning("[Spawner] No se entró a una sala a tiempo. Arrancá desde la escena Menu.");
+            yield break;
+        }
+
+        if (playerPrefab == null || Resources.Load<GameObject>(playerPrefab.name) == null)
+        {
+            Debug.LogError("[Spawner] El prefab Player no está asignado o no está dentro de una carpeta Resources.");
+            yield break;
+        }
+
+        if (PlayerController.Local == null)
+            SpawnLocalPlayer();
     }
 
     // Después de reconectar esperamos un poco: Photon puede devolverte tu jugador solo.
-    // Si pasado ese tiempo no hay ninguno tuyo en la escena, lo creamos de nuevo.
+    // Si pasado ese tiempo no hay ninguno tuyo, lo creamos de nuevo.
     private void HandleReconnected() => StartCoroutine(RespawnIfMissing());
 
     private IEnumerator RespawnIfMissing()
     {
         yield return new WaitForSeconds(reconnectCheckDelay);
 
-        if (!HasLocalPlayer())
+        if (PlayerController.Local == null && playerPrefab != null)
             SpawnLocalPlayer();
-    }
-
-    private bool HasLocalPlayer()
-    {
-        foreach (var view in FindObjectsByType<PhotonView>(FindObjectsSortMode.None))
-        {
-            if (view.IsMine && view.gameObject.name.StartsWith(playerPrefabName))
-                return true;
-        }
-        return false;
     }
 
     private void SpawnLocalPlayer()
@@ -67,6 +75,7 @@ public class PlayerSpawner : MonoBehaviour
             rotation = point.rotation;
         }
 
-        PhotonNetwork.Instantiate(playerPrefabName, position, rotation);
+        Debug.Log($"[Spawner] Instanciando '{playerPrefab.name}' (Actor {PhotonNetwork.LocalPlayer.ActorNumber}) en {position}");
+        PhotonNetwork.Instantiate(playerPrefab.name, position, rotation);
     }
 }

@@ -1643,10 +1643,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9252e2a42e1aae44e8f6af5b717fb568, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSpawner
-  playerPrefabName: Player
+  playerPrefab: {fileID: 5111075267876117515, guid: 4dbf5f6463085e74690a746305399948, type: 3}
   spawnPoints:
   - {fileID: 1288005188}
   - {fileID: 1554469967}
+  waitForRoomTimeout: 10
   reconnectCheckDelay: 1.5
 --- !u!4 &1394880713
 Transform:

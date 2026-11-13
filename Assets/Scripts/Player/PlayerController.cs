@@ -1,98 +1,78 @@
 using Photon.Pun;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.LowLevel;
 using UnityEngine.Rendering;
 
-[RequireComponent(typeof(CharacterController), typeof(PlayerInputReader))]
 public class PlayerController : MonoBehaviourPun
 {
-    [Header("Movimiento")]
-    [SerializeField] private float moveSpeed = 5f;
-    [SerializeField] private float gravity = -20f;
+    /// <summary>El jugador de ESTA instancia (null si todavía no apareció).</summary>
+    public static PlayerController Local { get; private set; }
 
-    [Header("Cámara")]
     [SerializeField] private Camera playerCamera;
-    [SerializeField] private Transform cameraHolder; // pivote que inclina la cámara arriba y abajo
-    [SerializeField] private float lookSensitivity = 0.1f; // grados por píxel de mouse
-    [SerializeField] private float maxPitch = 85f;
 
-    private CharacterController controller;
-    private PlayerInputReader input;
-    private float pitch;
-    private float verticalVelocity;
-
-    public float MoveSpeed
-    {
-        get => moveSpeed;
-        set => moveSpeed = value;
-    }
+    private PlayerInput input;
+    private PlayerLook look;
+    private AudioListener listener;
+    private PhotonView view;
 
     private void Awake()
     {
-        controller = GetComponent<CharacterController>();
-        input = GetComponent<PlayerInputReader>();
-    }
+        input = GetComponent<PlayerInput>();
+        look = GetComponent<PlayerLook>();
+        view = GetComponent<PhotonView>();
 
-    private void Start()
-    {
-        if (!photonView.IsMine)
-        {
-            // Jugador remoto: sin input, sin cámara y sin CharacterController
-            // (que si no, pelea con la posición que le manda PhotonTransformView).
+        if (playerCamera == null)
+            playerCamera = GetComponentInChildren<Camera>(true);
+
+        Debug.Log($"[Player] Awake | dueño={view.OwnerActorNr} yo={PhotonNetwork.LocalPlayer.ActorNumber} " +
+                  $"IsMine={view.IsMine} | cámara={(playerCamera != null)}");
+
+        // Remoto: sin input (como en el proyecto anterior).
+        if (input != null && !view.IsMine)
             input.enabled = false;
-            controller.enabled = false;
-            playerCamera.gameObject.SetActive(false);
-            enabled = false;
-            return;
-        }else
+
+        if (look != null)
+            look.enabled = view.IsMine;
+
+        if (playerCamera != null)
         {
-            playerCamera.gameObject.SetActive(true);
+            playerCamera.gameObject.SetActive(true); // por si el prefab la dejó apagada; manda Camera.enabled
+            playerCamera.enabled = view.IsMine;
+
+            listener = playerCamera.GetComponent<AudioListener>();
+            if (listener != null) listener.enabled = view.IsMine;
+        }
+        else
+        {
+            Debug.LogError("[Player] El prefab Player necesita una Camera como hijo.", this);
         }
 
-            SetupLocalPlayer();
-    }
+        if (!view.IsMine) return;
 
-    private void SetupLocalPlayer()
-    {
+        // Si ya había otro jugador local (por ejemplo, restaurado al reconectar), le sacamos la cámara.
+        if (Local != null && Local != this)
+            Local.DisableCamera();
+
+        Local = this;
+
         // Nuestro propio cuerpo no se ve, pero sigue proyectando sombra.
-        foreach (var rend in GetComponentsInChildren<Renderer>())
+        foreach (var rend in GetComponentsInChildren<Renderer>(true))
             rend.shadowCastingMode = ShadowCastingMode.ShadowsOnly;
-
-        // La cámara de este jugador reemplaza a la de la escena.
-        /* if (Camera.main != null)
-             Camera.main.gameObject.SetActive(false);
-
-
-         playerCamera.tag = "MainCamera";*/
     }
 
-    private void Update()
+    private void DisableCamera()
     {
-        Look();
-        Move();
+        if (playerCamera != null) playerCamera.enabled = false;
+        if (listener != null) listener.enabled = false;
     }
 
-    private void Look()
+    private void OnDestroy()
     {
-        Vector2 look = input.Look * lookSensitivity;
-
-        transform.Rotate(0f, look.x, 0f);
-
-        pitch = Mathf.Clamp(pitch - look.y, -maxPitch, maxPitch);
-        cameraHolder.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        if (Local == this) Local = null;
     }
 
-    private void Move()
-    {
-        Vector2 move = input.Move;
-        Vector3 direction = transform.right * move.x + transform.forward * move.y;
-        if (direction.sqrMagnitude > 1f) direction.Normalize();
-
-        if (controller.isGrounded && verticalVelocity < 0f)
-            verticalVelocity = -2f;
-
-        verticalVelocity += gravity * Time.deltaTime;
-
-        Vector3 velocity = direction * moveSpeed + Vector3.up * verticalVelocity;
-        controller.Move(velocity * Time.deltaTime);
-    }
+    // Por si el editor tiene desactivado el reinicio de dominio.
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    private static void ResetStatics() => Local = null;
 }
